@@ -1,0 +1,7 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="256" height="256" fill="#1a1a1a"/>
+  <circle cx="128" cy="128" r="80" fill="#333333"/>
+  <path d="M128 60C90.4 60 60 90.4 60 128s30.4 68 68 68 68-30.4 68-68-30.4-68-68-68zm0 120c-28.7 0-52-23.3-52-52s23.3-52 52-52 52 23.3 52 52-23.3 52-52 52z" fill="#666666"/>
+  <path d="M128 80c-26.5 0-48 21.5-48 48s21.5 48 48 48 48-21.5 48-48-21.5-48-48-48zm0 80c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32z" fill="#999999"/>
+  <text x="128" y="140" text-anchor="middle" fill="#cccccc" font-family="Arial, sans-serif" font-size="12">Hero</text>
+</svg> 

@@ -1,0 +1,403 @@
+{
+  "rulesVersion": "2.0.0",
+
+  // What your evaluator should supply per player
+  // benchmarks.*.pct are straight from OpenDota (0..1)
+  "kpis": [
+    "benchmarks.gold_per_min.pct",
+    "benchmarks.xp_per_min.pct",
+    "benchmarks.kills_per_min.pct",
+    "benchmarks.last_hits_per_min.pct",
+    "benchmarks.hero_damage_per_min.pct",
+    "benchmarks.hero_healing_per_min.pct",
+    "benchmarks.tower_damage.pct",
+    "benchmarks.denies_per_min.pct",
+
+    "first_core_s",        // first 2.5k+ non-boots item time (seconds) for cores
+    "deaths_per10",        // deaths per 10 minutes
+    "kpct",                // kill participation 0..100
+    "obs", "sentries",     // vision counts
+    "stacks", "smokes_used",
+    "match_minutes",       // total match length
+    "role",                // "pos1".."pos5"
+    
+    // New carry-specific KPIs
+    "early_deaths_0_10",   // deaths in first 10 minutes
+    "early_deaths_0_15",   // deaths in first 15 minutes
+    "idle_time_30s",       // time spent without CS for >30s
+    "last_hits_10",        // last hits at 10 minutes
+    "denies_10",           // denies at 10 minutes
+    "gpm_10",              // GPM at 10 minutes
+    "xpm_10"               // XPM at 10 minutes
+  ],
+
+  // Map OpenDota pct to bands
+  "bands": {
+    "great": 0.75,
+    "ok": 0.40,
+    "poor": 0.25
+  },
+
+  // Fixed thresholds for non-benchmark signals
+  "thresholds": {
+    // General thresholds
+    "firstCoreLate_s": 960,        // 16:00
+    "firstCoreVeryLate_s": 1080,   // 18:00
+    "deathsPer10High": 2.0,
+    "deathsPer10VeryHigh": 2.4,
+
+    // Vision expectation ~ ceil(match_minutes / 6)
+    "visionBaseDivisor": 6,
+    "sentriesExpectAt30": 4,
+
+    "stacksExpectBy20_pos4": 2,
+    "smokesExpectBy16_pos5": 1,
+
+    // Carry-specific thresholds
+    "carryEarlyDeaths0_10": 2,     // Max deaths in first 10 minutes
+    "carryEarlyDeaths0_15": 3,     // Max deaths in first 15 minutes
+    "carryIdleTime30s": 180,       // Max idle time >30s (3 minutes)
+    "carryLastHits10": 50,         // Min last hits at 10 minutes
+    "carryDenies10": 5,            // Min denies at 10 minutes
+    "carryGpm10": 400,             // Min GPM at 10 minutes
+    "carryXpm10": 500,             // Min XPM at 10 minutes
+    "carryKpctLow": 35,            // Low kill participation threshold
+    "carryDamageLow": 0.30,        // Low damage threshold (percentile)
+    "carryGpmLow": 0.35,           // Low GPM threshold (percentile)
+    "carryXpmLow": 0.35,           // Low XPM threshold (percentile)
+    "carryLhLow": 0.30             // Low last hits threshold (percentile)
+  },
+
+  // Reusable guardrails to avoid unfair advice
+  "guards": [
+    {
+      "id": "short_game",
+      "any": [{ "op": "lt", "kpi": "match_minutes", "value": 25 }],
+      "effect": "downgrade"
+    },
+    {
+      "id": "deaths_but_high_damage",
+      "any": [{ "op": "gte", "kpi": "benchmarks.hero_damage_per_min.pct", "value": 0.75 }],
+      "effect": "downgrade"
+    },
+    {
+      "id": "core_low_tower_but_high_damage",
+      "any": [{ "op": "gte", "kpi": "benchmarks.hero_damage_per_min.pct", "value": 0.75 }],
+      "effect": "downgrade"
+    },
+    {
+      "id": "carry_high_damage_compensation",
+      "any": [{ "op": "gte", "kpi": "benchmarks.hero_damage_per_min.pct", "value": 0.80 }],
+      "effect": "downgrade"
+    }
+  ],
+
+  // Role-specific rule sets
+  "roleRules": {
+    "pos1": [
+      {
+        "id": "carry_early_deaths_critical",
+        "all": [
+          { "op": "gt", "kpi": "early_deaths_0_10", "value": { "$ref": "thresholds.carryEarlyDeaths0_10" } }
+        ],
+        "bigGap": { "kpi": "early_deaths_0_10", "over": 3 },
+        "guardsRef": ["short_game"],
+        "advice": {
+          "title": "Critical early game deaths",
+          "detail": "You died too much in the first 10 minutes. Focus on staying alive - don't trade deaths for farm. Ask for support rotations if needed."
+        }
+      },
+      {
+        "id": "carry_low_kill_participation",
+        "all": [
+          { "op": "lt", "kpi": "kpct", "value": { "$ref": "thresholds.carryKpctLow" } },
+          { "op": "gte", "kpi": "match_minutes", "value": 20 }
+        ],
+        "guardsRef": ["short_game"],
+        "advice": {
+          "title": "Low fight participation",
+          "detail": "Your kill participation is too low for a carry. Join important fights after your first core item, especially around objectives."
+        }
+      },
+      {
+        "id": "carry_high_deaths_low_damage",
+        "all": [
+          { "op": "gt", "kpi": "deaths_per10", "value": { "$ref": "thresholds.deathsPer10High" } },
+          { "op": "lt", "kpi": "benchmarks.hero_damage_per_min.pct", "value": { "$ref": "thresholds.carryDamageLow" } }
+        ],
+        "bigGap": { "kpi": "deaths_per10", "over": { "$ref": "thresholds.deathsPer10VeryHigh" } },
+        "guardsRef": ["carry_high_damage_compensation", "short_game"],
+        "advice": {
+          "title": "High deaths with low impact",
+          "detail": "You're dying too much without dealing significant damage. Improve positioning, farm safer areas, and only fight when you have item advantages."
+        }
+      },
+      {
+        "id": "carry_late_first_core",
+        "all": [
+          { "op": "gt", "kpi": "first_core_s", "value": { "$ref": "thresholds.firstCoreLate_s" } }
+        ],
+        "bigGap": { "kpi": "first_core_s", "over": { "$ref": "thresholds.firstCoreVeryLate_s" } },
+        "guardsRef": ["short_game"],
+        "advice": {
+          "title": "Late first core item",
+          "detail": "Your first core item was too late. Focus on efficient farming patterns, avoid unnecessary skirmishes, and prioritize last hits over denies early."
+        }
+      },
+      {
+        "id": "carry_low_gpm",
+        "all": [
+          { "op": "lt", "kpi": "benchmarks.gold_per_min.pct", "value": { "$ref": "thresholds.carryGpmLow" } }
+        ],
+        "guardsRef": ["short_game"],
+        "advice": {
+          "title": "Low gold per minute",
+          "detail": "Your GPM is below average for this hero. Improve farming efficiency by stacking camps, taking safer farm, and avoiding downtime."
+        }
+      },
+      {
+        "id": "carry_low_xpm",
+        "all": [
+          { "op": "lt", "kpi": "benchmarks.xp_per_min.pct", "value": { "$ref": "thresholds.carryXpmLow" } }
+        ],
+        "guardsRef": ["short_game"],
+        "advice": {
+          "title": "Low experience per minute",
+          "detail": "Your XPM is below average. Stay in lane longer, take safer farm, and avoid dying to maintain experience advantage."
+        }
+      },
+      {
+        "id": "carry_low_last_hits",
+        "all": [
+          { "op": "lt", "kpi": "benchmarks.last_hits_per_min.pct", "value": { "$ref": "thresholds.carryLhLow" } }
+        ],
+        "guardsRef": ["short_game"],
+        "advice": {
+          "title": "Low last hit efficiency",
+          "detail": "Your last hit rate is below average. Practice last hitting, focus on timing, and prioritize CS over harassing in lane."
+        }
+      },
+      {
+        "id": "carry_low_denies",
+        "all": [
+          { "op": "lt", "kpi": "benchmarks.denies_per_min.pct", "value": 0.20 }
+        ],
+        "guardsRef": ["short_game"],
+        "advice": {
+          "title": "Low deny rate",
+          "detail": "You're not denying enough creeps. Denying denies enemy XP and gold while securing lane control."
+        }
+      },
+      {
+        "id": "carry_high_idle_time",
+        "all": [
+          { "op": "gt", "kpi": "idle_time_30s", "value": { "$ref": "thresholds.carryIdleTime30s" } }
+        ],
+        "guardsRef": ["short_game"],
+        "advice": {
+          "title": "Too much idle time",
+          "detail": "You spent too much time without getting CS. Always be farming or moving to farm - avoid standing around or waiting for fights."
+        }
+      },
+      {
+        "id": "carry_poor_10min_benchmarks",
+        "all": [
+          { "op": "lt", "kpi": "last_hits_10", "value": { "$ref": "thresholds.carryLastHits10" } },
+          { "op": "lt", "kpi": "gpm_10", "value": { "$ref": "thresholds.carryGpm10" } }
+        ],
+        "guardsRef": ["short_game"],
+        "advice": {
+          "title": "Poor 10-minute benchmarks",
+          "detail": "Your 10-minute farm is below expectations. Focus on last hitting, avoid dying, and secure safe farm in the early game."
+        }
+      }
+    ]
+  },
+
+  // Rules that produce fixes or wins
+  "rules": [
+    /* ---------- UNIVERSAL ---------- */
+    {
+      "id": "high_deaths_low_impact",
+      "roles": ["any"],
+      "all": [
+        { "op": "gt", "kpi": "deaths_per10", "value": { "$ref": "thresholds.deathsPer10High" } },
+        { "op": "lt", "kpi": "kpct", "value": 40 }
+      ],
+      "bigGap": { "kpi": "deaths_per10", "over": { "$ref": "thresholds.deathsPer10VeryHigh" } },
+      "guardsRef": ["deaths_but_high_damage", "short_game"],
+      "advice": {
+        "title": "Too many low impact deaths",
+        "detail": "Play farther back, TP to reset when low, and only fight on smoke or item timings."
+      }
+    },
+
+    /* ---------- CORES: POS1 + POS2 ---------- */
+    {
+      "id": "late_first_core_and_low_farm",
+      "roles": ["pos1","pos2"],
+      "all": [
+        { "op": "gt", "kpi": "first_core_s", "value": { "$ref": "thresholds.firstCoreLate_s" } },
+        { "op": "lt", "kpi": "benchmarks.gold_per_min.pct", "value": 0.45 }
+      ],
+      "bigGap": { "kpi": "first_core_s", "over": { "$ref": "thresholds.firstCoreVeryLate_s" } },
+      "guardsRef": ["short_game"],
+      "advice": {
+        "title": "First core item was late",
+        "detail": "Commit 2 minutes to safe farm after minute 8 and skip skirmishes until your timing."
+      }
+    },
+    {
+      "id": "low_tower_pressure_core",
+      "roles": ["pos1","pos2"],
+      "all": [
+        { "op": "lt", "kpi": "benchmarks.tower_damage.pct", "value": 0.35 },
+        { "op": "gte", "kpi": "match_minutes", "value": 20 }
+      ],
+      "guardsRef": ["core_low_tower_but_high_damage","short_game"],
+      "advice": {
+        "title": "Not converting farm to objectives",
+        "detail": "After first core, convert one wave per minute into safe chip on outer towers."
+      }
+    },
+
+    /* ---------- OFFLANE: POS3 ---------- */
+    {
+      "id": "offlane_low_damage_low_kp",
+      "roles": ["pos3"],
+      "all": [
+        { "op": "lt", "kpi": "benchmarks.hero_damage_per_min.pct", "value": 0.40 },
+        { "op": "lt", "kpi": "kpct", "value": 40 },
+        { "op": "gte", "kpi": "match_minutes", "value": 15 }
+      ],
+      "guardsRef": ["short_game"],
+      "advice": {
+        "title": "Low fight impact after lane",
+        "detail": "Group on your first aura timing and force a tower or smoke to a gate to pressure the map."
+      }
+    },
+
+    /* ---------- ROAM: POS4 ---------- */
+    {
+      "id": "roam_low_setup",
+      "roles": ["pos4"],
+      "all": [
+        { "op": "lt", "kpi": "kpct", "value": 45 },
+        { "op": "lt", "kpi": "stacks", "value": { "$ref": "thresholds.stacksExpectBy20_pos4" } },
+        { "op": "lt", "kpi": "match_minutes", "value": 20 }
+      ],
+      "advice": {
+        "title": "Low early setup",
+        "detail": "Guarantee one stack by 7 and another by 12, then rotate on rune minutes."
+      }
+    },
+
+    /* ---------- HARD SUPPORT: POS5 (and POS4 for vision) ---------- */
+    {
+      "id": "low_vision_tempo",
+      "roles": ["pos4","pos5"],
+      "all": [
+        { "op": "ltDynamic", "kpi": "obs", "formula": "ceil(match_minutes / thresholds.visionBaseDivisor)" },
+        { "op": "lt", "kpi": "sentries", "value": { "$ref": "thresholds.sentriesExpectAt30" } }
+      ],
+      "guardsRef": ["short_game"],
+      "advice": {
+        "title": "Raise your vision tempo",
+        "detail": "Place 2 observers before minute 10 and pair 2 sentries with your next 3 observers."
+      }
+    },
+    {
+      "id": "no_smoke_timing",
+      "roles": ["pos5"],
+      "all": [
+        { "op": "eq", "kpi": "smokes_used", "value": 0 },
+        { "op": "gte", "kpi": "match_minutes", "value": 16 }
+      ],
+      "advice": {
+        "title": "No smoke timing created",
+        "detail": "Lead one smoke between minutes 12 and 16 when your cores hit items."
+      }
+    },
+
+    /* ---------- WINS (positives) ---------- */
+    {
+      "id": "win_great_farm",
+      "type": "win",
+      "roles": ["pos1","pos2"],
+      "all": [{ "op": "gte", "kpi": "benchmarks.gold_per_min.pct", "value": { "$ref": "bands.great" } }],
+      "advice": {
+        "title": "Great farm speed",
+        "detail": "Your GPM ranked top 25 percent for this hero."
+      }
+    },
+    {
+      "id": "win_high_lh",
+      "type": "win",
+      "roles": ["pos1","pos2"],
+      "all": [{ "op": "gte", "kpi": "benchmarks.last_hits_per_min.pct", "value": { "$ref": "bands.great" } }],
+      "advice": {
+        "title": "Strong CS",
+        "detail": "Your last hits per minute were among the best for this hero."
+      }
+    },
+    {
+      "id": "win_high_kp",
+      "type": "win",
+      "roles": ["any"],
+      "all": [{ "op": "gte", "kpi": "kpct", "value": 60 }],
+      "advice": {
+        "title": "High fight participation",
+        "detail": "Excellent involvement in early skirmishes. Keep syncing with power rune minutes."
+      }
+    },
+    {
+      "id": "win_carry_clean_early",
+      "type": "win",
+      "roles": ["pos1"],
+      "all": [
+        { "op": "eq", "kpi": "early_deaths_0_10", "value": 0 },
+        { "op": "gte", "kpi": "last_hits_10", "value": 60 }
+      ],
+      "advice": {
+        "title": "Clean early game",
+        "detail": "Excellent early game - no deaths and strong CS at 10 minutes. This sets up a great mid-game."
+      }
+    },
+    {
+      "id": "win_carry_efficient_farming",
+      "type": "win",
+      "roles": ["pos1"],
+      "all": [
+        { "op": "lt", "kpi": "idle_time_30s", "value": 60 },
+        { "op": "gte", "kpi": "benchmarks.gold_per_min.pct", "value": { "$ref": "bands.ok" } }
+      ],
+      "advice": {
+        "title": "Efficient farming",
+        "detail": "Great farming efficiency with minimal idle time. You maximized your gold income."
+      }
+    }
+  ],
+
+  // Selection policy
+  "selection": {
+    "maxFixes": 3,
+    "maxWins": 2,
+    "tieBreakers": ["higherConfidenceFirst","roleSpecificOverGeneric"],
+    "roleSpecificPriority": {
+      "pos1": ["carry_early_deaths_critical", "carry_high_deaths_low_damage", "carry_late_first_core", "carry_low_gpm", "carry_low_last_hits"]
+    }
+  },
+
+  // Confidence scoring
+  "confidence": {
+    "basePerCondition": 1,
+    "bigGapBonus": 1,
+    "guardPenalty": 1,
+    "roleSpecificBonus": 0.5,
+    "labels": [
+      { "min": -99, "max": 2, "label": "low" },
+      { "min": 3, "max": 4, "label": "medium" },
+      { "min": 5, "max": 99, "label": "high" }
+    ]
+  }
+}

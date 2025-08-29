@@ -1,0 +1,221 @@
+{
+    "rulesVersion": "1.2.0",
+  
+    // What your evaluator should supply per player
+    // benchmarks.*.pct are straight from OpenDota (0..1)
+    "kpis": [
+      "benchmarks.gold_per_min.pct",
+      "benchmarks.xp_per_min.pct",
+      "benchmarks.kills_per_min.pct",
+      "benchmarks.last_hits_per_min.pct",
+      "benchmarks.hero_damage_per_min.pct",
+      "benchmarks.hero_healing_per_min.pct",
+      "benchmarks.tower_damage.pct",
+  
+      "first_core_s",        // first 2.5k+ non-boots item time (seconds) for cores
+      "deaths_per10",        // deaths per 10 minutes
+      "kpct",                // kill participation 0..100
+      "obs", "sentries",     // vision counts
+      "stacks", "smokes_used",
+      "match_minutes",       // total match length
+      "role"                 // "pos1".."pos5"
+    ],
+  
+    // Map OpenDota pct to bands
+    "bands": {
+      "great": 0.75,
+      "ok": 0.40
+    },
+  
+    // Fixed thresholds for non-benchmark signals
+    "thresholds": {
+      "firstCoreLate_s": 960,        // 16:00
+      "firstCoreVeryLate_s": 1080,   // 18:00
+      "deathsPer10High": 2.0,
+      "deathsPer10VeryHigh": 2.4,
+  
+      // Vision expectation ~ ceil(match_minutes / 6)
+      "visionBaseDivisor": 6,
+      "sentriesExpectAt30": 4,
+  
+      "stacksExpectBy20_pos4": 2,
+      "smokesExpectBy16_pos5": 1
+    },
+  
+    // Reusable guardrails to avoid unfair advice
+    "guards": [
+      {
+        "id": "short_game",
+        "any": [{ "op": "lt", "kpi": "match_minutes", "value": 25 }],
+        "effect": "downgrade"
+      },
+      {
+        "id": "deaths_but_high_damage",
+        "any": [{ "op": "gte", "kpi": "benchmarks.hero_damage_per_min.pct", "value": 0.75 }],
+        "effect": "downgrade"
+      },
+      {
+        "id": "core_low_tower_but_high_damage",
+        "any": [{ "op": "gte", "kpi": "benchmarks.hero_damage_per_min.pct", "value": 0.75 }],
+        "effect": "downgrade"
+      }
+    ],
+  
+    // Rules that produce fixes or wins
+    "rules": [
+      /* ---------- UNIVERSAL ---------- */
+      {
+        "id": "high_deaths_low_impact",
+        "roles": ["any"],
+        "all": [
+          { "op": "gt", "kpi": "deaths_per10", "value": { "$ref": "thresholds.deathsPer10High" } },
+          { "op": "lt", "kpi": "kpct", "value": 40 }
+        ],
+        "bigGap": { "kpi": "deaths_per10", "over": { "$ref": "thresholds.deathsPer10VeryHigh" } },
+        "guardsRef": ["deaths_but_high_damage", "short_game"],
+        "advice": {
+          "title": "Too many low impact deaths",
+          "detail": "Play farther back, TP to reset when low, and only fight on smoke or item timings."
+        }
+      },
+  
+      /* ---------- CORES: POS1 + POS2 ---------- */
+      {
+        "id": "late_first_core_and_low_farm",
+        "roles": ["pos1","pos2"],
+        "all": [
+          { "op": "gt", "kpi": "first_core_s", "value": { "$ref": "thresholds.firstCoreLate_s" } },
+          { "op": "lt", "kpi": "benchmarks.gold_per_min.pct", "value": 0.45 }
+        ],
+        "bigGap": { "kpi": "first_core_s", "over": { "$ref": "thresholds.firstCoreVeryLate_s" } },
+        "guardsRef": ["short_game"],
+        "advice": {
+          "title": "First core item was late",
+          "detail": "Commit 2 minutes to safe farm after minute 8 and skip skirmishes until your timing."
+        }
+      },
+      {
+        "id": "low_tower_pressure_core",
+        "roles": ["pos1","pos2"],
+        "all": [
+          { "op": "lt", "kpi": "benchmarks.tower_damage.pct", "value": 0.35 },
+          { "op": "gte", "kpi": "match_minutes", "value": 20 }
+        ],
+        "guardsRef": ["core_low_tower_but_high_damage","short_game"],
+        "advice": {
+          "title": "Not converting farm to objectives",
+          "detail": "After first core, convert one wave per minute into safe chip on outer towers."
+        }
+      },
+  
+      /* ---------- OFFLANE: POS3 ---------- */
+      {
+        "id": "offlane_low_damage_low_kp",
+        "roles": ["pos3"],
+        "all": [
+          { "op": "lt", "kpi": "benchmarks.hero_damage_per_min.pct", "value": 0.40 },
+          { "op": "lt", "kpi": "kpct", "value": 40 },
+          { "op": "gte", "kpi": "match_minutes", "value": 15 }
+        ],
+        "guardsRef": ["short_game"],
+        "advice": {
+          "title": "Low fight impact after lane",
+          "detail": "Group on your first aura timing and force a tower or smoke to a gate to pressure the map."
+        }
+      },
+  
+      /* ---------- ROAM: POS4 ---------- */
+      {
+        "id": "roam_low_setup",
+        "roles": ["pos4"],
+        "all": [
+          { "op": "lt", "kpi": "kpct", "value": 45 },
+          { "op": "lt", "kpi": "stacks", "value": { "$ref": "thresholds.stacksExpectBy20_pos4" } },
+          { "op": "lt", "kpi": "match_minutes", "value": 20 }
+        ],
+        "advice": {
+          "title": "Low early setup",
+          "detail": "Guarantee one stack by 7 and another by 12, then rotate on rune minutes."
+        }
+      },
+  
+      /* ---------- HARD SUPPORT: POS5 (and POS4 for vision) ---------- */
+      {
+        "id": "low_vision_tempo",
+        "roles": ["pos4","pos5"],
+        "all": [
+          { "op": "ltDynamic", "kpi": "obs", "formula": "ceil(match_minutes / thresholds.visionBaseDivisor)" },
+          { "op": "lt", "kpi": "sentries", "value": { "$ref": "thresholds.sentriesExpectAt30" } }
+        ],
+        "guardsRef": ["short_game"],
+        "advice": {
+          "title": "Raise your vision tempo",
+          "detail": "Place 2 observers before minute 10 and pair 2 sentries with your next 3 observers."
+        }
+      },
+      {
+        "id": "no_smoke_timing",
+        "roles": ["pos5"],
+        "all": [
+          { "op": "eq", "kpi": "smokes_used", "value": 0 },
+          { "op": "gte", "kpi": "match_minutes", "value": 16 }
+        ],
+        "advice": {
+          "title": "No smoke timing created",
+          "detail": "Lead one smoke between minutes 12 and 16 when your cores hit items."
+        }
+      },
+  
+      /* ---------- WINS (positives) ---------- */
+      {
+        "id": "win_great_farm",
+        "type": "win",
+        "roles": ["pos1","pos2"],
+        "all": [{ "op": "gte", "kpi": "benchmarks.gold_per_min.pct", "value": { "$ref": "bands.great" } }],
+        "advice": {
+          "title": "Great farm speed",
+          "detail": "Your GPM ranked top 25 percent for this hero."
+        }
+      },
+      {
+        "id": "win_high_lh",
+        "type": "win",
+        "roles": ["pos1","pos2"],
+        "all": [{ "op": "gte", "kpi": "benchmarks.last_hits_per_min.pct", "value": { "$ref": "bands.great" } }],
+        "advice": {
+          "title": "Strong CS",
+          "detail": "Your last hits per minute were among the best for this hero."
+        }
+      },
+      {
+        "id": "win_high_kp",
+        "type": "win",
+        "roles": ["any"],
+        "all": [{ "op": "gte", "kpi": "kpct", "value": 60 }],
+        "advice": {
+          "title": "High fight participation",
+          "detail": "Excellent involvement in early skirmishes. Keep syncing with power rune minutes."
+        }
+      }
+    ],
+  
+    // Selection policy
+    "selection": {
+      "maxFixes": 3,
+      "maxWins": 2,
+      "tieBreakers": ["higherConfidenceFirst","roleSpecificOverGeneric"]
+    },
+  
+    // Confidence scoring
+    "confidence": {
+      "basePerCondition": 1,
+      "bigGapBonus": 1,
+      "guardPenalty": 1,
+      "labels": [
+        { "min": -99, "max": 2, "label": "low" },
+        { "min": 3, "max": 4, "label": "medium" },
+        { "min": 5, "max": 99, "label": "high" }
+      ]
+    }
+  }
+  
