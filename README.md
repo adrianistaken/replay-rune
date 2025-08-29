@@ -1,4 +1,4 @@
-# Replay Checkup
+# Replay Rune
 
 A Dota 2 replay analysis tool that provides actionable feedback for improvement. Paste a match ID, pick your role, and get a clean one-page report with the top 3 fixes for your next game.
 
@@ -31,7 +31,7 @@ A Dota 2 replay analysis tool that provides actionable feedback for improvement.
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd replay-checker
+cd replay-rune
 ```
 
 2. Install dependencies:
@@ -56,7 +56,7 @@ npm run dev
 ## Project Structure
 
 ```
-replay-checker/
+replay-rune/
 ├── app/
 │   ├── pages/
 │   │   ├── index.vue          # Home page with input form
