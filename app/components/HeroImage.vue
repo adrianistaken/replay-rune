@@ -1,10 +1,10 @@
 <template>
     <img :src="imageUrl" :alt="alt" :width="width" :height="height" :class="imageClass" loading="lazy" decoding="async"
-        @error="handleImageError" />
+        @error="handleImageError" @load="handleImageLoad" :style="{ opacity: imageLoaded ? 1 : 0.7 }" />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useHeroes } from '../composables/useHeroes'
 
 interface Props {
@@ -26,6 +26,9 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { getHeroImg, getHeroIcon } = useHeroes()
 
+const imageLoaded = ref(false)
+const imageError = ref(false)
+
 const imageUrl = computed(() => {
     if (props.type === 'icon') {
         return getHeroIcon(props.heroId)
@@ -39,6 +42,12 @@ const imageClass = computed(() => {
 
 const handleImageError = (event: Event) => {
     const img = event.target as HTMLImageElement
-    img.src = '/hero-fallback.webp'
+    img.src = '/hero-fallback.svg'
+    imageLoaded.value = true
+    imageError.value = true
+}
+
+const handleImageLoad = () => {
+    imageLoaded.value = true
 }
 </script>

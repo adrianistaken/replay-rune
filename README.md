@@ -16,7 +16,7 @@ A Dota 2 replay analysis tool that provides actionable feedback for improvement.
 
 - **Frontend**: Vue 3 + TypeScript + Nuxt.js
 - **Styling**: Tailwind CSS
-- **Data**: OpenDota API (planned)
+- **Data**: STRATZ GraphQL API
 - **Storage**: Local browser storage
 
 ## Getting Started
@@ -39,12 +39,22 @@ cd replay-rune
 npm install
 ```
 
-3. Start the development server:
+3. Set up environment variables:
+```bash
+# Create .env file
+cp .env.example .env
+
+# Add your STRATZ API token
+# Get your token from https://stratz.com/api
+echo "STRATZ_API_TOKEN=your_token_here" >> .env
+```
+
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
-4. Open your browser and navigate to `http://localhost:3000`
+5. Open your browser and navigate to `http://localhost:3000`
 
 ## Usage
 
@@ -80,18 +90,19 @@ replay-rune/
 - History management with localStorage
 - Responsive design
 - TypeScript interfaces
+- STRATZ GraphQL API integration
+- Performance analysis with STRATZ metrics
+- Role-specific advice generation
+- Real KPI calculations with hero averages
 
 ### 🚧 In Progress
-- OpenDota API integration
-- Rules engine for generating fixes
-- Hero medians data for percentiles
-- Real KPI calculations
+- Advanced analytics and insights
+- Hero-specific optimization
 
 ### 📋 Planned
-- CORS proxy for API calls
-- Hero-specific advice
-- Advanced analytics
 - Export functionality
+- Team analysis features
+- Advanced filtering and comparison
 
 ## Contributing
 

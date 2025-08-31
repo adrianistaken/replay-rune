@@ -46,6 +46,10 @@ export function useHeroes() {
      * Get hero image URL with fallback
      */
     function getHeroImg(heroId: number): string {
+        // If heroes haven't been loaded yet, return fallback
+        if (Object.keys(heroes.value).length === 0) {
+            return '/hero-fallback.svg'
+        }
         return getHeroImageUrl(heroes.value, heroId)
     }
 
@@ -53,6 +57,10 @@ export function useHeroes() {
      * Get hero icon URL with fallback
      */
     function getHeroIcon(heroId: number): string {
+        // If heroes haven't been loaded yet, return fallback
+        if (Object.keys(heroes.value).length === 0) {
+            return '/hero-fallback.svg'
+        }
         return getHeroIconUrl(heroes.value, heroId)
     }
 

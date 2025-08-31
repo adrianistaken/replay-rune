@@ -1,80 +1,56 @@
 <template>
     <div class="max-w-4xl mx-auto">
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-100 mb-4">Analysis History</h1>
-            <p class="text-lg text-gray-300">
+            <h1 class="text-3xl font-bold text-text-primary mb-4">Analysis History</h1>
+            <p class="text-lg text-text-primary">
                 Your recent match analyses and insights.
             </p>
         </div>
 
-        <!-- Currently Parsing Matches -->
-        <div v-if="getAllParsingMatches.length > 0" class="mb-8">
-            <h2 class="text-lg font-semibold text-gray-100 mb-4">Currently Parsing</h2>
-            <div class="space-y-3">
-                <div v-for="status in getAllParsingMatches" :key="status.matchId"
-                    class="bg-gray-800 rounded-lg border border-orange-700 p-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-                            <div>
-                                <div class="text-gray-100 font-medium">Match {{ status.matchId }}</div>
-                                <div class="text-sm text-gray-400">Parsing replay data...</div>
-                            </div>
-                        </div>
-                        <div class="text-xs text-gray-500">
-                            {{ formatDate(status.lastChecked) }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div v-if="reports.length === 0 && getAllParsingMatches.length === 0" class="text-center py-12">
-            <div class="text-gray-400 text-6xl mb-4">📊</div>
-            <h2 class="text-xl font-semibold text-gray-100 mb-2">No Reports Yet</h2>
-            <p class="text-gray-400 mb-6">Analyze your first match to see your history here.</p>
+        <div v-if="reports.length === 0" class="text-center py-12">
+            <div class="text-text-muted text-6xl mb-4">📊</div>
+            <h2 class="text-xl font-semibold text-text-primary mb-2">No Reports Yet</h2>
+            <p class="text-text-secondary mb-6">Analyze your first match to see your history here.</p>
             <NuxtLink to="/"
-                class="px-6 py-3 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors">
+                class="px-6 py-3 bg-accent-primary text-white rounded-md hover:bg-accent-primary/80 transition-colors focus-accent">
                 Analyze a Match
             </NuxtLink>
         </div>
 
         <div v-else class="space-y-4">
             <div v-for="report in reports" :key="report.id"
-                class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6 hover:shadow-xl transition-all cursor-pointer"
+                class="bg-dark-panel rounded-lg shadow-lg border border-dark-border p-6 hover:shadow-xl transition-all cursor-pointer"
                 @click="viewReport(report)">
                 <div class="flex justify-between items-start">
                     <div class="flex-1">
                         <div class="flex items-center mb-2">
-                            <h3 class="text-lg font-semibold text-gray-100">
+                            <h3 class="text-lg font-semibold text-text-primary">
                                 {{ report.heroName }} ({{ getRoleDisplayName(report.role) }})
                             </h3>
                             <span
-                                class="ml-2 px-2 py-1 bg-gray-700 text-gray-300 text-xs rounded-full border border-gray-600">
+                                class="ml-2 px-2 py-1 bg-dark-card text-text-secondary text-xs rounded-full border border-dark-border-light">
                                 Match {{ report.matchId }}
                             </span>
                             <span class="ml-2 text-xs px-2 py-1 rounded-full"
-                                :class="report.win ? 'bg-green-900/50 text-green-300 border border-green-700' : 'bg-red-900/50 text-red-300 border border-red-700'">
+                                :class="report.win ? 'bg-accent-success/10 text-accent-success border border-accent-success/30' : 'bg-accent-error/10 text-accent-error border border-accent-error/30'">
                                 {{ report.win ? 'Victory' : 'Defeat' }}
                             </span>
-                            <span v-if="isParsing(report.matchId)"
-                                class="ml-2 text-xs px-2 py-1 rounded-full bg-orange-900/50 text-orange-300 border border-orange-700 flex items-center">
-                                <div class="animate-spin rounded-full h-3 w-3 border-b-2 border-orange-500 mr-1"></div>
-                                Parsing
-                            </span>
+
                         </div>
-                        <p class="text-gray-300 mb-3">{{ report.summary }}</p>
-                        <div class="text-sm text-gray-400">
+                        <p class="text-text-primary mb-3">{{ report.summary }}</p>
+                        <div class="text-sm text-text-secondary">
                             Analyzed {{ formatDate(report.timestamp) }}
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
                         <button @click.stop="copyShareLink(report)"
-                            class="p-2 text-gray-400 hover:text-orange-400 transition-colors" title="Share">
+                            class="p-2 text-text-secondary hover:text-accent-primary transition-colors focus-accent"
+                            title="Share">
                             📋
                         </button>
                         <button @click.stop="deleteReport(report)"
-                            class="p-2 text-gray-400 hover:text-red-400 transition-colors" title="Delete">
+                            class="p-2 text-text-secondary hover:text-accent-error transition-colors focus-accent"
+                            title="Delete">
                             🗑️
                         </button>
                     </div>
@@ -83,7 +59,8 @@
         </div>
 
         <div v-if="reports.length > 0" class="mt-8 text-center">
-            <button @click="clearHistory" class="px-4 py-2 text-gray-400 hover:text-red-400 transition-colors">
+            <button @click="clearHistory"
+                class="px-4 py-2 text-text-secondary hover:text-accent-error transition-colors focus-accent">
                 Clear All History
             </button>
         </div>
@@ -92,7 +69,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useParsingStatus } from '../composables/useParsingStatus'
+
 
 interface ReportSummary {
     id: string
@@ -106,7 +83,9 @@ interface ReportSummary {
 }
 
 const reports = ref<ReportSummary[]>([])
-const { isParsing, getAllParsingMatches } = useParsingStatus()
+// No parsing needed for STRATZ data
+const isParsing = (matchId: string) => false
+const getAllParsingMatches = () => []
 
 onMounted(() => {
     loadHistory()

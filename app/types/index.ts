@@ -1,82 +1,181 @@
-// Dota 2 Match Data Interfaces
-export interface OpenDotaMatch {
-    match_id: number
-    radiant_win: boolean
-    duration: number
-    players: OpenDotaPlayer[]
-    picks_bans?: OpenDotaPickBan[]
-    objectives?: OpenDotaObjective[]
-    od_data?: OpenDotaData
+// STRATZ GraphQL API Types
+
+// STRATZ GraphQL API Types
+export interface StratzMatch {
+    id: number
+    didRadiantWin: boolean
+    durationSeconds: number
+    startDateTime: number
+    endDateTime: number
+    towerStatusRadiant: number
+    towerStatusDire: number
+    barracksStatusRadiant: number
+    barracksStatusDire: number
+    clusterId: number
+    firstBloodTime: number
+    lobbyType: string
+    numHumanPlayers: number
+    gameMode: string
+    replaySalt: string | null
+    isStats: boolean
+    tournamentId: number | null
+    tournamentRound: number | null
+    actualRank: number
+    averageRank: number | null
+    averageImp: number
+    parsedDateTime: number
+    statsDateTime: number
+    leagueId: number | null
+    league: StratzLeague | null
+    radiantTeamId: number | null
+    radiantTeam: StratzTeam | null
+    direTeamId: number | null
+    direTeam: StratzTeam | null
+    seriesId: number | null
+    series: StratzSeries | null
+    gameVersionId: number
+    regionId: number
+    sequenceNum: number
+    rank: number
+    bracket: number
+    analysisOutcome: string
+    predictedOutcomeWeight: number
+    players: StratzPlayer[]
 }
 
-export interface OpenDotaData {
-    has_api: boolean
-    has_gcdata: boolean
-    has_parsed: boolean
-    has_archive: boolean
+export interface StratzLeague {
+    id: number
+    name: string
+    displayName: string
+    tier: string
+    region: string
+    url: string
+    description: string
+    isProCircuit: boolean
+    imageUri: string
+    color: string
 }
 
-export interface OpenDotaPlayer {
-    account_id: number
-    player_slot: number
-    hero_id: number
-    item_0: number
-    item_1: number
-    item_2: number
-    item_3: number
-    item_4: number
-    item_5: number
+export interface StratzTeam {
+    id: number
+    name: string
+    tag: string
+    dateCreated: number
+    isPro: boolean
+    countryCode: string
+    url: string
+    logo: string
+    baseUri: string
+    lastMatchDateTime: number
+    teamCaptainId: number
+    homeLeagueId: number
+    homeLeague: StratzLeague | null
+}
+
+export interface StratzSeries {
+    id: number
+    name: string
+    type: string
+    leagueId: number
+    league: StratzLeague | null
+    startDateTime: number
+    endDateTime: number
+    matches: StratzMatch[]
+}
+
+export interface StratzPlayer {
+    steamAccount: StratzSteamAccount
+    hero: StratzHero
     kills: number
     deaths: number
     assists: number
-    leaver_status: number
-    last_hits: number
-    denies: number
-    gold_per_min: number
-    xp_per_min: number
+    networth: number
+    goldPerMinute: number
+    experiencePerMinute: number
+    imp: number
+    role: string
+    roleBasic: string
+    numLastHits: number
+    numDenies: number
+    stats: StratzPlayerStats
+    heroAverage: StratzHeroAverage[]
+    lane: string
+    isRadiant: boolean
+}
+
+export interface StratzSteamAccount {
+    id: number
+    name: string
+}
+
+export interface StratzHero {
+    id: number
+    displayName: string
+    shortName: string
+    aliases: string[]
+    roles: StratzHeroRole[]
+    talents: StratzHeroTalent[]
+    facets: StratzHeroFacet[]
+    stats: StratzHeroStats
+}
+
+export interface StratzHeroRole {
+    roleId: string
     level: number
-    gold: number
-    gold_spent: number
-    hero_damage: number
-    tower_damage: number
-    hero_healing: number
-    obs_placed?: number
-    sen_placed?: number
-    creeps_stacked?: number
-    camps_stacked?: number
-    rune_pickups?: number
-    firstblood_claimed?: number
-    stuns?: number
-    max_hero_hit?: string
-    max_hero_hit_value?: number
-    teamfight_participation?: number
-    tower_kills?: number
-    roshan_kills?: number
-    observers_placed?: number
-    sentries_placed?: number
-    purchase_log?: PurchaseLogEntry[]
-    benchmarks?: { [key: string]: { raw: number; pct: number } }
 }
 
-export interface OpenDotaPickBan {
-    is_pick: boolean
-    hero_id: number
-    team: number
-    order: number
-}
-
-export interface OpenDotaObjective {
-    time: number
-    type: string
+export interface StratzHeroTalent {
+    abilityId: number
     slot: number
-    key: number
-    player_slot: number
 }
 
-export interface PurchaseLogEntry {
+export interface StratzHeroFacet {
+    abilityId: number | null
+    facetId: number
+    slot: number
+}
+
+export interface StratzHeroStats {
+    team: boolean
+    complexity: number
+}
+
+export interface StratzPlayerStats {
+    impPerMinute: number[]
+    goldPerMinute: number[]
+}
+
+export interface StratzHeroAverage {
+    heroId: number
+    week: number
     time: number
-    key: string
-    charges?: number
+    position: string
+    bracketBasicIds: number[] | null
+    matchCount: number
+    remainingMatchCount: number
+    winCount: number
+    mvp: number
+    topCore: number
+    topSupport: number
+    courierKills: number
+    apm: number
+    goldPerMinute: number | null
+    xp: number
+    kills: number
+    deaths: number
+    networth: number
+    level: number
+    cs: number
+    dn: number
+    healingSelf: number
+    healingAllies: number
+    campsStacked: number
+    damage: number
+    supportGold: number
+    casts: number
+    abilityCasts: number
+    goldFed: number
+    goldLost: number
 }
 
 // Computed KPI Data
@@ -130,8 +229,16 @@ export interface ComputedPlayerData {
     gpm_10?: number
     xpm_10?: number
 
-    // Benchmark data from OpenDota
-    benchmarks?: { [key: string]: { raw: number; pct: number } }
+    // STRATZ-specific data
+
+    // STRATZ-specific data
+    stratzData?: {
+        imp: number
+        heroAverage: StratzHeroAverage[]
+        role: string
+        roleBasic: string
+        lane: string
+    }
 }
 
 // Analysis Results Interfaces

@@ -1,124 +1,35 @@
-# CHANGES.md
+# Changelog
 
-## [Unreleased] - 2024-12-19
+## [Unreleased] - STRATZ API Integration
 
 ### Added
-- **Replay Parsing System**: Implemented comprehensive replay parsing functionality for unparsed Dota 2 matches
-  - **Automatic Parsing Detection**: System automatically detects when a replay needs parsing via `od_data.has_parsed` field
-  - **Parsing Request API**: Added `requestParsing()` method to OpenDota service that calls `/api/request/{match_id}` endpoint
-  - **Parsing Status Tracking**: Implemented `useParsingStatus` composable to track parsing status across the application
-  - **Real-time Parsing Monitoring**: Added `waitForParsing()` method that polls for parsing completion with configurable timeouts
-  - **Parsing Loader Component**: Created `ParsingLoader.vue` component with spinner and friendly messaging
-  - **Cross-Page Parsing Status**: Parsing status is maintained across all pages (home, history, reports) with localStorage persistence
-  - **Match Data Caching**: Implemented intelligent caching system to prevent unnecessary API requests
-    - **Parsed Data Caching**: Automatically caches parsed match data when parsing completes
-    - **Cache-First Strategy**: Report pages check for cached data before making API requests
-    - **Background Caching**: Parsed data is cached in background during parsing process
-  - **Efficient Job Status API**: Integrated OpenDota's `/api/request/{jobId}` endpoint for more efficient parsing status checking
-    - **Job Status Tracking**: Uses job IDs to check parsing status directly instead of polling match data
-    - **Reduced API Calls**: Eliminates unnecessary match data requests during parsing
-    - **Faster Status Detection**: Direct job status checking is more efficient than match data polling
-    - **Better Error Handling**: More reliable status checking with proper job completion detection
-- **Item Image System**: Implemented comprehensive item image handling with CDN integration
-  - **Item Image Utilities**: Created `itemUtils.ts` for item image URL normalization and optimization
-  - **CDN Integration**: Item images now use full CDN URLs instead of relative paths
-  - **Fallback Handling**: Proper error handling with fallback images for failed item image loads
-  - **Image Optimization**: Lazy loading and async decoding for better performance
-- **Subscription Page**: Created comprehensive subscription information page with modern design
-  - **Pricing Tiers**: Clear display of Free and Pro ($5/month) subscription options
-  - **Feature Comparison**: Side-by-side comparison of plan features and limitations
-  - **FAQ Section**: Common questions about subscriptions, cancellation, and refunds
-  - **Call-to-Action**: Prominent upgrade buttons and trial offers
-  - **Modern Design**: Gradient backgrounds, proper spacing, and professional typography
-  - **Navigation Integration**: Added "Subscribe" link to main navigation bar
-- **Enhanced User Experience**: 
-  - **Background Parsing**: Users can immediately see hero selection and continue with their choices while parsing happens in the background
-  - **Non-blocking UI**: Hero and role selection is available immediately, even for unparsed replays
-  - **Subtle Parsing Indicators**: Small spinner and "Parsing in background..." message shows parsing progress without blocking interaction
-  - **Optimized Workflow**: Parsing starts immediately when match is loaded, reducing wait time when user clicks "Analyze Match"
-  - **Friendly Loading Messages**: Users see clear messaging about replay parsing progress
-  - **Visual Parsing Indicators**: Spinning loaders and status badges show parsing progress
-  - **History Page Integration**: History page shows parsing status for matches and displays currently parsing matches
-  - **Automatic Data Refresh**: Once parsing completes, system automatically fetches the parsed data
-  - **Error Handling**: Comprehensive error handling for parsing failures with user-friendly messages
-- **Parsing Status Management**:
-  - **LocalStorage Persistence**: Parsing status is saved to localStorage and persists across browser sessions
-  - **Global State Management**: `useParsingStatus` composable provides centralized parsing status management
-  - **Status Cleanup**: Automatic cleanup of parsing status when parsing completes or fails
-  - **Cross-Tab Synchronization**: Parsing status is shared across browser tabs via localStorage
-  - **Duplicate Parsing Prevention**: System checks if parsing is already in progress before starting new parsing requests
-  - **Job ID Tracking**: Enhanced status management with job ID storage for efficient status checking
+- **STRATZ GraphQL API Integration**: Complete refactor to use STRATZ API as the sole data source
+- **New STRATZ Service**: `app/services/stratz.ts` - Handles all STRATZ GraphQL API interactions
+- **STRATZ Rule Engine**: `app/services/stratzRuleEngine.ts` - Analyzes performance using STRATZ-specific metrics
+- **Server-side API Proxy**: `server/api/stratz/graphql.post.ts` - Secure proxy to avoid exposing API tokens
+- **New Type Definitions**: Added comprehensive STRATZ API type definitions in `app/types/index.ts`
 
 ### Changed
-- **Match Data Fetching**: Updated all match data fetching logic to check for parsing status before proceeding
-  - **Index Page**: Enhanced `fetchMatchData()` to handle unparsed replays with background parsing and immediate UI availability
-  - **Report Pages**: Updated both report page variants to handle parsing before analysis, with support for already-in-progress parsing
-  - **Error Handling**: Improved error messages to distinguish between parsing failures and other issues
-  - **UI Flow**: Hero selection is now immediately available, with parsing happening in background
-  - **API Request Optimization**: Implemented cache-first strategy to minimize unnecessary API calls
-- **OpenDota Service**: Extended service with new parsing-related methods:
-  - `requestParsing(matchId)`: Requests replay parsing from OpenDota API
-  - `checkParsingStatus(matchId)`: Checks if a replay has been parsed
-  - `checkJobStatus(jobId)`: New efficient method to check job status directly
-  - `waitForParsing(matchId, jobId?, maxAttempts, delayMs)`: Enhanced to use job status API when available
-  - **Dual Status Checking**: Intelligent fallback between job status API and match data polling
-- **Type System**: Added new TypeScript interfaces for parsing functionality:
-  - `OpenDotaData`: Interface for `od_data` field in match responses
-  - `ParsingJobResponse`: Interface for parsing request responses
-  - `JobStatusResponse`: New interface for job status API responses
-  - `MatchParsingStatus`: Interface for tracking parsing status
-- **User Interface**: 
-  - **Hero Selection**: Now shows immediately with subtle parsing indicator instead of blocking loader
-  - **Analyze Button**: Shows "Continue to Analysis (Parsing in Progress)" when parsing is in background
-  - **Parsing Indicators**: Replaced full-screen loader with subtle header indicator
-  - **Timeline Display**: Enhanced timeline section with larger item images and improved layout
-    - **Larger Item Images**: Increased from 12x12 to 20x20 pixels with proper aspect ratio
-    - **Better Layout**: Full-width design with improved spacing and typography
-    - **Clearer Information**: Prominent display of item name, purchase time, and cost
-    - **Removed Redundant Values**: Eliminated unnecessary right-side timing display
-  - **Navigation**: Added "Subscribe" link to main navigation for easy access to subscription information
-- **Data Management**:
-  - **Caching Strategy**: Added intelligent caching to prevent duplicate API requests
-  - **Background Caching**: Parsed data is automatically cached when parsing completes
-  - **Cache Validation**: System checks for cached data before making new API requests
-- **Item Image Handling**:
-  - **CDN Integration**: All item images now use full CDN URLs for better performance and reliability
-  - **URL Normalization**: Relative item image paths are converted to full CDN URLs
-  - **Error Recovery**: Proper fallback handling for failed item image loads
-  - **Performance Optimization**: Added lazy loading and async decoding for item images
+- **Data Source**: Replaced OpenDota API with STRATZ GraphQL API
+- **Performance Analysis**: Updated to use STRATZ-specific metrics including IMP (Impact) scores
+- **Rule Engine**: Simplified and optimized for STRATZ data structure
+- **Report Generation**: Streamlined to work with pre-parsed STRATZ data
+- **Nuxt Configuration**: Added runtime config for environment variables
 
-### Technical Improvements
-- **API Integration**: Seamless integration with OpenDota's replay parsing API
-- **State Management**: Robust state management for parsing status across the application
-- **User Feedback**: Clear visual feedback during parsing process without blocking user interaction
-- **Error Recovery**: Graceful handling of parsing failures and timeouts
-- **Performance**: Efficient polling mechanism with configurable intervals and timeouts
-- **Background Processing**: Non-blocking parsing that allows users to continue with their workflow
-- **Request Optimization**: Eliminated unnecessary API requests through intelligent caching
-- **Duplicate Prevention**: Prevents multiple parsing requests for the same match
-- **Image Performance**: Optimized item image loading with CDN integration and fallback handling
-- **UI/UX Enhancement**: Improved timeline display with better visual hierarchy and information presentation
-- **Design System**: Consistent styling and modern UI components throughout the application
-- **API Efficiency**: 
-  - **Reduced API Calls**: Job status API eliminates unnecessary match data requests
-  - **Faster Status Detection**: Direct job status checking is more responsive
-  - **Better Resource Usage**: More efficient polling reduces server load
-  - **Improved Reliability**: Job status API provides more accurate completion detection
+### Removed
+- **OpenDota Service**: Replaced with STRATZ service
+- **Parsing Logic**: Removed replay parsing since STRATZ data is pre-parsed
+- **Parsing Status Management**: No longer needed with STRATZ
+- **Local JSON Dependencies**: Removed runtime loading of hero/item JSON files
 
-### Fixed
-- **Unparsed Replay Handling**: Resolved issue where unparsed replays would fail to load or provide incomplete data
-- **User Experience**: Fixed confusing behavior when replays needed parsing by providing clear feedback and non-blocking interaction
-- **Data Consistency**: Ensured parsed data is used for analysis instead of incomplete unparsed data
-- **Workflow Optimization**: Eliminated unnecessary waiting by allowing users to continue with hero/role selection while parsing happens
-- **API Request Efficiency**: Fixed issue where report pages would make unnecessary API requests for already-parsed data
-- **Duplicate Parsing**: Prevented multiple parsing requests that could interfere with each other
-- **Item Image Display**: Fixed broken item images by implementing CDN integration and proper URL normalization
-- **Timeline UI**: Improved timeline display with larger, clearer item images and better information layout
-- **Parsing Efficiency**: Optimized parsing status checking to reduce unnecessary API calls and improve performance
-- **Parsing Interruption**: Fixed critical issue where parsing process would be interrupted or restarted when navigating from hero selection to analysis screen
-  - **Background Parsing Continuity**: Parsing jobs now continue running in background without interruption when user navigates between pages
-  - **Graceful Error Handling**: Report pages no longer throw errors when parsing is in progress, instead continuing with available data
-  - **Visual Parsing Indicators**: Added parsing status indicators to report pages so users know when parsing is still in progress
-  - **Non-blocking Navigation**: Users can navigate to report pages while parsing continues in background without causing errors
-  - **Improved Status Management**: Enhanced parsing status tracking to prevent job conflicts and ensure continuity
-  - **Better User Feedback**: Clear visual indicators show parsing progress without blocking the user interface 
+### Technical Details
+- **Environment Variables**: Requires `STRATZ_API_TOKEN` in `.env` file
+- **API Endpoint**: Uses secure proxy at `/api/stratz/graphql`
+- **Data Structure**: Leverages STRATZ's rich player and hero average data
+- **Performance Metrics**: Focuses on GPM, XPM, IMP, kill participation, and role-specific metrics
+
+### Migration Notes
+- Users need to obtain a STRATZ API token from https://stratz.com/api
+- Add `STRATZ_API_TOKEN=your_token_here` to `.env` file
+- All existing functionality preserved with improved data quality
+- No changes to UI/UX - same report flow maintained 

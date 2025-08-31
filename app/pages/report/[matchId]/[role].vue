@@ -19,23 +19,23 @@
                         <span class="mx-2">•</span>
                         <span>{{ formatDuration(report.matchDuration) }}</span>
                         <span class="mx-2">•</span>
-                        <span :class="report.radiantWin ? 'text-green-400' : 'text-red-400'">
+                        <span :class="report.radiantWin ? 'text-team-radiant' : 'text-team-dire'">
                             {{ report.radiantWin ? 'Radiant Victory' : 'Dire Victory' }}
                         </span>
                         <!-- Parsing Status Indicator -->
                         <div v-if="isParsing" class="flex items-center ml-4">
-                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500 mr-2"></div>
-                            <span class="text-orange-400">Parsing in progress...</span>
+                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary mr-2"></div>
+                            <span class="text-accent-primary">Parsing in progress...</span>
                         </div>
                     </div>
                 </div>
                 <div class="flex space-x-2">
                     <button @click="copyShareLink"
-                        class="px-4 py-2 bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 transition-colors">
+                        class="px-4 py-2 bg-dark-card text-text-primary rounded-md hover:bg-dark-card/80 transition-colors focus-accent">
                         Share
                     </button>
                     <NuxtLink to="/"
-                        class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors">
+                        class="px-4 py-2 bg-accent-primary text-white rounded-md hover:bg-accent-primary/80 transition-colors focus-accent">
                         New Analysis
                     </NuxtLink>
                 </div>
@@ -43,60 +43,60 @@
         </div>
 
         <!-- Top 3 Fixes -->
-        <div class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-100 mb-4">Top 3 Fixes for Next Game</h2>
+        <div class="bg-dark-panel rounded-lg shadow-lg border border-dark-border p-6 mb-6">
+            <h2 class="text-xl font-semibold text-text-primary mb-4">Top 3 Fixes for Next Game</h2>
             <div class="space-y-4">
                 <div v-for="(fix, index) in report.fixes" :key="fix.title"
-                    class="flex items-start space-x-4 p-4 bg-red-900/20 rounded-lg border-l-4 border-red-500">
+                    class="flex items-start space-x-4 p-4 bg-accent-error/10 rounded-lg border-l-4 border-accent-error">
                     <div
-                        class="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">
+                        class="flex-shrink-0 w-8 h-8 bg-accent-error text-white rounded-full flex items-center justify-center font-bold">
                         {{ index + 1 }}
                     </div>
                     <div>
-                        <h3 class="font-semibold text-red-300">{{ fix.title }}</h3>
-                        <p class="text-red-200 mt-1">{{ fix.description }}</p>
+                        <h3 class="font-semibold text-accent-error">{{ fix.title }}</h3>
+                        <p class="text-accent-error/80 mt-1">{{ fix.description }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Wins -->
-        <div class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-100 mb-4">What You Did Well</h2>
+        <div class="bg-dark-panel rounded-lg shadow-lg border border-dark-border p-6 mb-6">
+            <h2 class="text-xl font-semibold text-text-primary mb-4">What You Did Well</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div v-for="win in report.wins" :key="win.title"
-                    class="p-4 bg-green-900/20 rounded-lg border-l-4 border-green-500">
-                    <h3 class="font-semibold text-green-300">{{ win.title }}</h3>
-                    <p class="text-green-200 mt-1">{{ win.description }}</p>
+                    class="p-4 bg-accent-success/10 rounded-lg border-l-4 border-accent-success">
+                    <h3 class="font-semibold text-accent-success">{{ win.title }}</h3>
+                    <p class="text-accent-success/80 mt-1">{{ win.description }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Timeline -->
-        <div class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-100 mb-4">Key Timings</h2>
+        <div class="bg-dark-panel rounded-lg shadow-lg border border-dark-border p-6 mb-6">
+            <h2 class="text-xl font-semibold text-text-primary mb-4">Key Timings</h2>
             <div class="space-y-4">
-                <div v-for="marker in report.timeline" :key="marker.label" class="bg-gray-700 rounded-lg p-4">
+                <div v-for="marker in report.timeline" :key="marker.label" class="bg-dark-card rounded-lg p-4">
                     <div class="flex items-start space-x-4">
                         <div class="flex-shrink-0">
                             <img v-if="marker.itemImg" :src="marker.itemImg" :alt="marker.description"
-                                class="h-20 rounded-lg border-2 border-gray-600" loading="lazy" decoding="async"
-                                @error="handleItemImageError" />
+                                class="h-20 rounded-lg border-2 border-dark-border-light" loading="lazy"
+                                decoding="async" @error="handleItemImageError" />
                         </div>
                         <div class="flex-1">
                             <div class="flex items-center space-x-3 mb-2">
-                                <h3 class="text-lg font-semibold text-gray-100">{{ marker.label }}</h3>
-                                <span class="text-sm text-gray-400">{{ marker.description }}</span>
+                                <h3 class="text-lg font-semibold text-text-primary">{{ marker.label }}</h3>
+                                <span class="text-sm text-text-secondary">{{ marker.description }}</span>
                             </div>
-                            <div v-if="marker.details" class="text-sm text-gray-300 mb-2">{{ marker.details }}</div>
+                            <div v-if="marker.details" class="text-sm text-text-primary mb-2">{{ marker.details }}</div>
                             <div class="flex items-center space-x-4 text-sm">
                                 <div class="flex items-center space-x-1">
-                                    <span class="text-gray-400">Purchased at:</span>
-                                    <span class="font-medium text-orange-400">{{ formatTime(marker.time) }}</span>
+                                    <span class="text-text-secondary">Purchased at:</span>
+                                    <span class="font-medium text-accent-primary">{{ formatTime(marker.time) }}</span>
                                 </div>
                                 <div v-if="marker.delta" class="flex items-center space-x-1"
-                                    :class="marker.delta > 0 ? 'text-red-400' : 'text-green-400'">
-                                    <span class="text-gray-400">vs 12:00:</span>
+                                    :class="marker.delta > 0 ? 'text-accent-error' : 'text-accent-success'">
+                                    <span class="text-text-secondary">vs 12:00:</span>
                                     <span class="font-medium">{{ marker.delta > 0 ? '+' : '' }}{{ marker.delta
                                         }}s</span>
                                 </div>
@@ -108,13 +108,13 @@
         </div>
 
         <!-- KPI Grid -->
-        <div class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-            <h2 class="text-xl font-semibold text-gray-100 mb-4">Performance Metrics</h2>
+        <div class="bg-dark-panel rounded-lg shadow-lg border border-dark-border p-6">
+            <h2 class="text-xl font-semibold text-text-primary mb-4">Performance Metrics</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 <div v-for="kpi in report.kpis" :key="kpi.name"
-                    class="p-4 bg-gray-700 rounded-lg border border-gray-600 hover:shadow-lg transition-all duration-200">
-                    <div class="text-sm text-gray-400 mb-2 font-medium">{{ kpi.name }}</div>
-                    <div class="text-2xl font-bold mb-3 text-gray-100">
+                    class="p-4 bg-dark-card rounded-lg border border-dark-border-light hover:shadow-lg transition-all duration-200">
+                    <div class="text-sm text-text-secondary mb-2 font-medium">{{ kpi.name }}</div>
+                    <div class="text-2xl font-bold mb-3 text-text-primary">
                         {{ formatValue(kpi.value) }}{{ kpi.unit }}
                     </div>
 
@@ -149,21 +149,21 @@
 
     <!-- Loading State -->
     <div v-else-if="isLoading" class="max-w-4xl mx-auto">
-        <div class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-12 text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-            <h2 class="text-xl font-semibold text-gray-100 mb-2">Analyzing Match...</h2>
-            <p class="text-gray-400">Fetching data from OpenDota and generating your report</p>
+        <div class="bg-dark-panel rounded-lg shadow-lg border border-dark-border p-12 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary mx-auto mb-4"></div>
+            <h2 class="text-xl font-semibold text-text-primary mb-2">Analyzing Match...</h2>
+            <p class="text-text-secondary">Fetching data from STRATZ and generating your report</p>
         </div>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="max-w-4xl mx-auto">
-        <div class="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-12 text-center">
-            <div class="text-red-400 text-6xl mb-4">⚠️</div>
-            <h2 class="text-xl font-semibold text-gray-100 mb-2">Analysis Failed</h2>
-            <p class="text-gray-400 mb-6">{{ error }}</p>
+        <div class="bg-dark-panel rounded-lg shadow-lg border border-dark-border p-12 text-center">
+            <div class="text-accent-error text-6xl mb-4">⚠️</div>
+            <h2 class="text-xl font-semibold text-text-primary mb-2">Analysis Failed</h2>
+            <p class="text-text-secondary mb-6">{{ error }}</p>
             <NuxtLink to="/"
-                class="px-6 py-3 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors">
+                class="px-6 py-3 bg-accent-primary text-white rounded-md hover:bg-accent-primary/80 transition-colors focus-accent">
                 Try Again
             </NuxtLink>
         </div>
@@ -174,7 +174,6 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useHeroes } from '../../../composables/useHeroes'
-import { useParsingStatus } from '../../../composables/useParsingStatus'
 
 // Define the interface locally for now
 interface AnalysisReport {
@@ -200,12 +199,8 @@ const report = ref<AnalysisReport | null>(null)
 const isLoading = ref(true)
 const error = ref('')
 
-// Parsing status
-const { isParsing: checkIsParsing } = useParsingStatus()
-const isParsing = computed(() => {
-    const matchId = route.params.matchId as string
-    return checkIsParsing(matchId)
-})
+// No parsing needed for STRATZ data
+const isParsing = computed(() => false)
 
 onMounted(async () => {
     const matchId = route.params.matchId as string
@@ -221,119 +216,32 @@ onMounted(async () => {
     try {
         console.log('Loading report for:', { matchId, role, heroId })
 
-        // Check if we have cached match data first
-        const { getCachedMatchData, hasCachedMatchData } = useParsingStatus()
-        let match: any
-
-        if (hasCachedMatchData(matchId)) {
-            console.log('Using cached match data')
-            match = getCachedMatchData(matchId)
-        } else {
-            console.log('Fetching match data from OpenDota')
-            // Fetch match data from OpenDota
-            let response = await fetch(`https://api.opendota.com/api/matches/${matchId}`)
-            if (!response.ok) {
-                throw new Error(`Failed to fetch match data: ${response.status}`)
-            }
-
-            match = await response.json()
-            console.log('Match data:', match)
-        }
-
-        // Check if replay needs parsing
-        const needsParsing = !match.od_data?.has_parsed
-        if (needsParsing) {
-            console.log('Replay needs parsing, checking if already in progress...')
-            const { isParsing, setParsing, cacheMatchData } = useParsingStatus()
-
-            // Check if parsing is already in progress
-            if (!isParsing(matchId)) {
-                console.log('Starting parsing process...')
-                setParsing(matchId)
-
-                try {
-                    const { OpenDotaService } = await import('../../../services/opendota')
-                    const parsingResponse = await OpenDotaService.requestParsing(matchId)
-                    console.log('Parsing requested:', parsingResponse)
-
-                    // Wait for parsing to complete
-                    const isParsed = await OpenDotaService.waitForParsing(matchId, parsingResponse.job.jobId)
-
-                    if (isParsed) {
-                        console.log('Replay parsing completed')
-                        const { setParsed } = useParsingStatus()
-                        setParsed(matchId)
-
-                        // Fetch and cache the parsed data
-                        const parsedResponse = await fetch(`https://api.opendota.com/api/matches/${matchId}`)
-                        if (!parsedResponse.ok) {
-                            throw new Error(`HTTP error! status: ${parsedResponse.status}`)
-                        }
-                        const parsedData = await parsedResponse.json()
-                        cacheMatchData(matchId, parsedData)
-                        match = parsedData
-                    } else {
-                        throw new Error('Replay parsing timed out. Please try again later.')
-                    }
-                } catch (parsingError) {
-                    console.error('Parsing error:', parsingError)
-                    const { removeStatus } = useParsingStatus()
-                    removeStatus(matchId)
-                    throw new Error('Failed to parse replay. Please try again later.')
-                }
-            } else {
-                console.log('Parsing already in progress, waiting for completion...')
-                // Parsing is already in progress, wait for it to complete
-                try {
-                    const { OpenDotaService } = await import('../../../services/opendota')
-                    const { getJobId } = useParsingStatus()
-                    const jobId = getJobId(matchId)
-
-                    console.log(`Waiting for existing parsing job ${jobId} to complete...`)
-                    const isParsed = await OpenDotaService.waitForParsing(matchId, jobId)
-
-                    if (isParsed) {
-                        console.log('Replay parsing completed')
-                        const { setParsed } = useParsingStatus()
-                        setParsed(matchId)
-
-                        // Check if we have cached data first
-                        if (hasCachedMatchData(matchId)) {
-                            console.log('Using cached parsed data')
-                            match = getCachedMatchData(matchId)
-                        } else {
-                            // Fetch the parsed data
-                            const parsedResponse = await fetch(`https://api.opendota.com/api/matches/${matchId}`)
-                            if (!parsedResponse.ok) {
-                                throw new Error(`HTTP error! status: ${parsedResponse.status}`)
-                            }
-                            const parsedData = await parsedResponse.json()
-                            cacheMatchData(matchId, parsedData)
-                            match = parsedData
-                        }
-                    } else {
-                        console.log('Parsing timed out, but continuing with available data...')
-                        // Instead of throwing an error, continue with the unparsed data
-                        // The user can still see basic information while parsing continues in background
-                        console.log('Continuing with unparsed data while parsing continues in background')
-                    }
-                } catch (parsingError) {
-                    console.error('Error waiting for parsing:', parsingError)
-                    // Don't remove the parsing status or throw error - let it continue in background
-                    console.log('Continuing with available data while parsing continues in background')
-                }
-            }
-        }
+        // Fetch match data from STRATZ
+        console.log('Fetching match data from STRATZ API...')
+        const { StratzService } = await import('../../../services/stratz')
+        const match = await StratzService.fetchMatch(matchId)
+        console.log('STRATZ API response received:', match)
+        console.log('Match ID:', match.id)
+        console.log('Match duration:', match.durationSeconds)
+        console.log('Radiant win:', match.didRadiantWin)
+        console.log('Number of players:', match.players.length)
+        console.log('Players:', match.players.map(p => ({
+            heroId: p.hero.id,
+            heroName: p.hero.displayName,
+            role: p.role,
+            isRadiant: p.isRadiant
+        })))
 
         // Find the player with the specified hero ID
+        console.log('Looking for player with hero ID:', heroId)
         let player = null
         if (heroId) {
-            player = match.players.find((p: any) => p.hero_id.toString() === heroId)
+            player = match.players.find((p: any) => p.hero.id.toString() === heroId)
         } else {
             // Fallback: find player by role (this is less reliable)
             player = match.players.find((p: any) => {
-                const playerRole = p.lane_role || 1
-                const targetRole = parseInt(role.replace('pos', ''))
+                const playerRole = p.role || 'CORE'
+                const targetRole = role.toUpperCase()
                 return playerRole === targetRole
             })
         }
@@ -344,214 +252,50 @@ onMounted(async () => {
             console.log('Fallback: using first player:', player)
         }
 
-        // Load items data from JSON file
-        const itemsResponse = await fetch('/constants/items.json')
-        const itemsData = await itemsResponse.json()
+        if (!player) {
+            throw new Error('No player found in match')
+        }
+
+        console.log('Found player:', {
+            heroId: player.hero.id,
+            heroName: player.hero.displayName,
+            role: player.role,
+            isRadiant: player.isRadiant,
+            kills: player.kills,
+            deaths: player.deaths,
+            assists: player.assists,
+            gpm: player.goldPerMinute,
+            xpm: player.experiencePerMinute,
+            imp: player.imp
+        })
 
         // Get hero data using the new hero system
         const { loadHeroes, getHero } = useHeroes()
         await loadHeroes()
-        const heroData = getHero(player.hero_id)
-        const heroName = heroData?.localized_name || 'Unknown Hero'
+        const heroData = getHero(player.hero.id)
+        const heroName = heroData?.localized_name || player.hero.displayName
 
-        // Import item utilities
-        const { getItemImageUrl } = await import('../../../utils/itemUtils')
+        // Use STRATZ service to compute player data
+        console.log('Computing player data with STRATZ service...')
+        const playerData = StratzService.computePlayerData(match, player.hero.id, role)
+        console.log('Computed player data:', playerData)
 
-        // Find first core item and its timing using purchase log
-        let firstCoreItemTiming = match.duration // Default to match duration if no core item found
-        let firstCoreItemName = 'No core item'
-        let firstCoreItemImg = ''
-        let firstCoreItemCost = 0
+        console.log('Computing KPIs with STRATZ service...')
+        const kpis = StratzService.computeKPIs(playerData)
+        console.log('Computed KPIs:', kpis)
 
-        if (player.purchase_log && player.purchase_log.length > 0) {
-            // Find the first item that costs over 1700 gold
-            for (const purchase of player.purchase_log) {
-                const itemData = itemsData[purchase.key]
-                if (itemData && itemData.cost > 1700) {
-                    firstCoreItemTiming = purchase.time
-                    firstCoreItemName = itemData.dname || 'Unknown Item'
-                    firstCoreItemImg = getItemImageUrl(itemData)
-                    firstCoreItemCost = itemData.cost
-                    break
-                }
-            }
-        }
-
-        // If no core item found, try with lower threshold (1200 gold)
-        if (firstCoreItemName === 'No core item' && player.purchase_log && player.purchase_log.length > 0) {
-            for (const purchase of player.purchase_log) {
-                const itemData = itemsData[purchase.key]
-                if (itemData && itemData.cost > 1200) {
-                    firstCoreItemTiming = purchase.time
-                    firstCoreItemName = itemData.dname || 'Unknown Item'
-                    firstCoreItemImg = getItemImageUrl(itemData)
-                    firstCoreItemCost = itemData.cost
-                    break
-                }
-            }
-        }
-
-        // Compute player data inline
-        const matchMinutes = match.duration / 60
-        const teamKills = match.players
-            .filter((p: any) => (p.player_slot < 128) === (player.player_slot < 128))
-            .reduce((sum: number, p: any) => sum + p.kills, 0)
-        const kpct = teamKills > 0 ? ((player.kills + player.assists) / teamKills) * 100 : 0
-        const deathsPer10 = (player.deaths / matchMinutes) * 10
-        const dpm = player.hero_damage / matchMinutes
-        const tdpm = player.tower_damage / matchMinutes
-
-        // Compute KPIs with benchmark data
-        const benchmarks = player.benchmarks || {}
-        const kpis = []
-
-        // Helper function to get benchmark data
-        const getBenchmarkData = (key: string) => {
-            const benchmark = benchmarks[key]
-            if (benchmark) {
-                return {
-                    raw: benchmark.raw,
-                    percentile: Math.round(benchmark.pct * 100)
-                }
-            }
-            return null
-        }
-
-        // GPM
-        const gpmData = getBenchmarkData('gold_per_min')
-        kpis.push({
-            name: 'GPM',
-            value: Math.round(player.gold_per_min),
-            unit: '',
-            percentile: gpmData?.percentile || 50,
-            median: Math.round(gpmData?.raw || 540),
-            delta: Math.round(player.gold_per_min - (gpmData?.raw || 540)),
-            description: 'Gold per minute'
-        })
-
-        // XPM
-        const xpmData = getBenchmarkData('xp_per_min')
-        kpis.push({
-            name: 'XPM',
-            value: Math.round(player.xp_per_min),
-            unit: '',
-            percentile: xpmData?.percentile || 50,
-            median: Math.round(xpmData?.raw || 580),
-            delta: Math.round(player.xp_per_min - (xpmData?.raw || 580)),
-            description: 'Experience per minute'
-        })
-
-        // Hero damage per minute
-        const dpmData = getBenchmarkData('hero_damage_per_min')
-        kpis.push({
-            name: 'Hero Damage/min',
-            value: Math.round(dpm),
-            unit: '',
-            percentile: dpmData?.percentile || 50,
-            median: Math.round(dpmData?.raw || 420),
-            delta: Math.round(dpm - (dpmData?.raw || 420)),
-            description: 'Hero damage per minute'
-        })
-
-        // Last hits per minute
-        const lhData = getBenchmarkData('last_hits_per_min')
-        const lhPerMin = Math.round(player.last_hits / matchMinutes)
-        kpis.push({
-            name: 'Last Hits/min',
-            value: lhPerMin,
-            unit: '',
-            percentile: lhData?.percentile || 50,
-            median: Math.round(lhData?.raw || 52),
-            delta: Math.round(lhPerMin - (lhData?.raw || 52)),
-            description: 'Last hits per minute'
-        })
-
-        // Tower damage
-        const tdData = getBenchmarkData('tower_damage')
-        kpis.push({
-            name: 'Tower Damage',
-            value: Math.round(player.tower_damage),
-            unit: '',
-            percentile: tdData?.percentile || 50,
-            median: Math.round(tdData?.raw || 0),
-            delta: Math.round(player.tower_damage - (tdData?.raw || 0)),
-            description: 'Tower damage'
-        })
-
-        // Hero healing
-        const healingData = getBenchmarkData('hero_healing_per_min')
-        const hpm = Math.round(player.hero_healing / matchMinutes)
-        kpis.push({
-            name: 'Hero Healing/min',
-            value: hpm,
-            unit: '',
-            percentile: healingData?.percentile || 50,
-            median: Math.round(healingData?.raw || 0),
-            delta: Math.round(hpm - (healingData?.raw || 0)),
-            description: 'Hero healing per minute'
-        })
-
-        // Kill participation
-        kpis.push({
-            name: 'Kill Participation',
-            value: Math.round(kpct),
-            unit: '%',
-            percentile: kpct > 60 ? 80 : kpct > 40 ? 60 : 40,
-            median: 50,
-            delta: Math.round(kpct - 50),
-            description: 'Kill participation percentage'
-        })
-
-        // Deaths per 10 minutes
-        kpis.push({
-            name: 'Deaths/10min',
-            value: Math.round(deathsPer10 * 10) / 10,
-            unit: '',
-            percentile: deathsPer10 < 2 ? 80 : deathsPer10 < 3 ? 60 : 40,
-            median: 2.5,
-            delta: Math.round((deathsPer10 - 2.5) * 10) / 10,
-            description: 'Deaths per 10 minutes'
-        })
-
-        // Run analysis using the rule engine
-        const { RuleEngine } = await import('../../../services/ruleEngine')
-        const analysis = RuleEngine.analyzePlayer({
-            matchId: matchId,
-            heroId: player.hero_id,
-            heroName: heroName,
-            role: role,
-            playerSlot: player.player_slot,
-            radiantWin: match.radiant_win,
-            matchDuration: match.duration,
-            lh_10: player.last_hits,
-            gpm: player.gold_per_min,
-            xpm: player.xp_per_min,
-            kpct: kpct,
-            dpm: dpm,
-            tdpm: tdpm,
-            deaths_per10: deathsPer10,
-            first_core_s: firstCoreItemTiming,
-            obs: player.observer_uses || 0,
-            sentries: player.sentry_uses || 0,
-            dewards: 0, // Not available in OpenDota API
-            stacks: player.camps_stacked || 0,
-            smokes_used: 0, // Not available in OpenDota API
-            lane_nw_delta10: 0, // Not available in OpenDota API
-            match_minutes: matchMinutes,
-            win_minutes: matchMinutes,
-            minute_bucket: '20+',
-            benchmarks: player.benchmarks
-        }, kpis.map(kpi => ({
-            ...kpi,
-            rawValue: kpi.value
-        })))
+        // Run analysis using the STRATZ rule engine
+        console.log('Running STRATZ rule engine analysis...')
+        const { StratzRuleEngine } = await import('../../../services/stratzRuleEngine')
+        const analysis = StratzRuleEngine.analyzePlayer(playerData, kpis)
+        console.log('Analysis results:', analysis)
 
         // Create the report
         const finalReport = {
             id: `report-${Date.now()}`,
             matchId: matchId,
             heroName: heroName,
-            heroId: player.hero_id,
+            heroId: player.hero.id,
             heroImg: heroData?.img || '',
             role: role,
             summary: analysis.summary,
@@ -567,18 +311,11 @@ onMounted(async () => {
             })),
             fixes: analysis.fixes,
             wins: analysis.wins,
-            timeline: [{
-                label: 'First Core Item',
-                time: Math.round(firstCoreItemTiming),
-                delta: Math.round(firstCoreItemTiming - 720), // 12 minutes = 720 seconds
-                description: firstCoreItemName,
-                itemImg: firstCoreItemImg,
-                details: `${firstCoreItemCost} gold `
-            }],
+            timeline: analysis.timeline,
             timestamp: Date.now(),
-            matchDuration: match.duration,
-            radiantWin: match.radiant_win,
-            playerSlot: player.player_slot
+            matchDuration: match.durationSeconds,
+            radiantWin: match.didRadiantWin,
+            playerSlot: player.isRadiant ? 0 : 128
         }
 
         console.log('Final report data:', finalReport)
@@ -660,35 +397,35 @@ const getRoleDisplayName = (role: string) => {
 
 const getPercentileColor = (percentile: number) => {
     if (percentile >= 90) return 'bg-gradient-to-r from-purple-500 to-purple-600'
-    if (percentile >= 80) return 'bg-gradient-to-r from-blue-500 to-blue-600'
-    if (percentile >= 70) return 'bg-gradient-to-r from-green-500 to-green-600'
-    if (percentile >= 60) return 'bg-gradient-to-r from-yellow-500 to-yellow-600'
-    if (percentile >= 40) return 'bg-gradient-to-r from-orange-500 to-orange-600'
-    return 'bg-gradient-to-r from-red-500 to-red-600'
+    if (percentile >= 80) return 'bg-gradient-to-r from-accent-primary to-accent-primary/80'
+    if (percentile >= 70) return 'bg-gradient-to-r from-accent-success to-accent-success/80'
+    if (percentile >= 60) return 'bg-gradient-to-r from-accent-warning to-accent-warning/80'
+    if (percentile >= 40) return 'bg-gradient-to-r from-accent-warning to-accent-warning/80'
+    return 'bg-gradient-to-r from-accent-error to-accent-error/80'
 }
 
 const getPercentileTextColor = (percentile: number) => {
     if (percentile >= 90) return 'text-purple-400'
-    if (percentile >= 80) return 'text-blue-400'
-    if (percentile >= 70) return 'text-green-400'
-    if (percentile >= 60) return 'text-yellow-400'
-    if (percentile >= 40) return 'text-orange-400'
-    return 'text-red-400'
+    if (percentile >= 80) return 'text-accent-primary'
+    if (percentile >= 70) return 'text-accent-success'
+    if (percentile >= 60) return 'text-accent-warning'
+    if (percentile >= 40) return 'text-accent-warning'
+    return 'text-accent-error'
 }
 
 const getValueColor = (kpi: any) => {
-    if (kpi.delta > 0) return 'text-green-400'
-    if (kpi.delta < 0) return 'text-red-400'
-    return 'text-gray-300'
+    if (kpi.delta > 0) return 'text-accent-success'
+    if (kpi.delta < 0) return 'text-accent-error'
+    return 'text-text-primary'
 }
 
 const getPerformanceLevelClass = (percentile: number) => {
     if (percentile >= 90) return 'bg-purple-900/50 text-purple-300 border border-purple-700'
-    if (percentile >= 80) return 'bg-blue-900/50 text-blue-300 border border-blue-700'
-    if (percentile >= 70) return 'bg-green-900/50 text-green-300 border border-green-700'
-    if (percentile >= 60) return 'bg-yellow-900/50 text-yellow-300 border border-yellow-700'
-    if (percentile >= 40) return 'bg-orange-900/50 text-orange-300 border border-orange-700'
-    return 'bg-red-900/50 text-red-300 border border-red-700'
+    if (percentile >= 80) return 'bg-accent-primary/10 text-accent-primary border border-accent-primary/30'
+    if (percentile >= 70) return 'bg-accent-success/10 text-accent-success border border-accent-success/30'
+    if (percentile >= 60) return 'bg-accent-warning/10 text-accent-warning border border-accent-warning/30'
+    if (percentile >= 40) return 'bg-accent-warning/10 text-accent-warning border border-accent-warning/30'
+    return 'bg-accent-error/10 text-accent-error border border-accent-error/30'
 }
 
 const getPerformanceLevelText = (percentile: number) => {
