@@ -21,14 +21,20 @@
                     <div class="flex items-end">
                         <button @click="fetchMatchData" :disabled="isLoading || !matchId"
                             class="px-6 py-2 bg-accent-primary text-white rounded-md hover:bg-accent-primary/80 focus:outline-none focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 focus:ring-offset-dark-panel disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-accent">
-                            <span v-if="isLoading">Loading...</span>
+                            <span v-if="isLoading">Loading Match...</span>
                             <span v-else>Load Match</span>
                         </button>
+
+
                     </div>
                 </div>
 
                 <div v-if="error" class="mt-4 p-3 bg-accent-error/10 border border-accent-error/30 rounded-md">
                     <p class="text-accent-error">{{ error }}</p>
+                </div>
+                <div v-if="matchHeroes.length > 0 && !error"
+                    class="mt-4 p-3 bg-accent-success/10 border border-accent-success/30 rounded-md">
+                    <p class="text-accent-success">✅ Match loaded successfully! Select your hero and role below.</p>
                 </div>
             </div>
 
@@ -102,20 +108,28 @@
                 </div>
 
                 <!-- Analyze Button -->
-                <button @click="analyzeMatch" :disabled="isLoading || !selectedRole || !selectedHero"
+                <button @click="analyzeMatch"
+                    :disabled="isLoading || !matchId || matchHeroes.length === 0 || !selectedRole || !selectedHero"
                     class="w-full mt-6 bg-accent-primary text-white py-3 px-4 rounded-md font-medium hover:bg-accent-primary/80 focus:outline-none focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 focus:ring-offset-dark-panel disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-accent">
                     <span v-if="isLoading">Analyzing...</span>
+                    <span v-else-if="!matchId">Enter Match ID</span>
+                    <span v-else-if="matchHeroes.length === 0">Load Match First</span>
+                    <span v-else-if="!selectedHero">Select Your Hero</span>
+                    <span v-else-if="!selectedRole">Select Your Role</span>
                     <span v-else-if="isParsing">Continue to Analysis (Parsing in Progress)</span>
                     <span v-else>Analyze Match</span>
                 </button>
+
+
             </div>
 
             <!-- Recent History -->
             <div v-if="recentReports.length > 0" class="mt-8">
                 <h3 class="text-lg font-semibold text-text-primary mb-4">Recent Reports</h3>
-                <div class="space-y-3">
-                    <div v-for="report in recentReports" :key="report.id"
-                        class="bg-dark-panel rounded-lg shadow-lg border border-dark-border p-4 hover:shadow-xl transition-all">
+                <div class="space-y-3 relative">
+                    <!-- Visible Reports (first 2) -->
+                    <div v-for="report in recentReports.slice(0, 2)" :key="report.id"
+                        class="bg-dark-panel rounded-lg shadow-lg border border-dark-border p-4 hover:shadow-xl hover:border-accent-primary/30 hover:bg-dark-panel/80 hover:scale-[1.02] transition-all duration-200 cursor-pointer">
                         <div class="flex justify-between items-start">
                             <div class="flex items-center space-x-3 flex-1 cursor-pointer" @click="viewReport(report)">
                                 <HeroImage :hero-id="report.heroId" :width="48" :height="48" class="rounded"
@@ -138,14 +152,65 @@
                                     </div>
                                 </div>
                             </div>
-                            <button @click.stop="deleteReport(report.id)"
-                                class="text-accent-error hover:text-accent-error/80 p-2 rounded-md hover:bg-accent-error/10 transition-colors focus-accent">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                    </path>
-                                </svg>
-                            </button>
+                            <div class="flex items-center space-x-2">
+                                <button @click.stop="copyShareLink(report)"
+                                    class="text-text-secondary hover:text-accent-primary p-2 rounded-md hover:bg-accent-primary/10 transition-colors focus-accent"
+                                    title="Share">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z">
+                                        </path>
+                                    </svg>
+                                </button>
+                                <button @click.stop="confirmDeleteReport(report.id)"
+                                    class="text-accent-error hover:text-accent-error/80 p-2 rounded-md hover:bg-accent-error/10 transition-colors focus-accent"
+                                    title="Delete">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                        </path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Blurred Reports (if more than 2) -->
+                    <div v-if="recentReports.length > 2" class="relative">
+                        <div v-for="report in recentReports.slice(2)" :key="report.id"
+                            class="bg-dark-panel rounded-lg shadow-lg border border-dark-border p-4 transition-all blur-sm opacity-50 pointer-events-none">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center space-x-3 flex-1">
+                                    <HeroImage :hero-id="report.heroId" :width="48" :height="48" class="rounded"
+                                        :alt="report.heroName" />
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="font-medium text-text-primary">
+                                                {{ report.heroName }} ({{ getRoleDisplayName(report.role) }})
+                                            </div>
+                                            <span class="text-xs px-2 py-1 rounded-full"
+                                                :class="report.win === true ? 'bg-accent-success/10 text-accent-success border border-accent-success/30' : 'bg-accent-error/10 text-accent-error border border-accent-error/30'">
+                                                {{ report.win === true ? 'Victory' : 'Defeat' }}
+                                            </span>
+                                        </div>
+                                        <div class="text-sm text-text-secondary">
+                                            Match {{ report.matchId }} • {{ formatDate(report.timestamp) }}
+                                        </div>
+                                        <div class="text-sm text-text-primary mt-1">
+                                            {{ report.summary }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subscribe Overlay -->
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-dark-bg/90 to-transparent rounded-lg flex items-end justify-center pb-4">
+                            <NuxtLink to="/subscribe"
+                                class="bg-accent-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-accent-primary/80 transition-colors shadow-lg focus-accent">
+                                Subscribe to See All Reports
+                            </NuxtLink>
                         </div>
                     </div>
                 </div>
@@ -246,18 +311,20 @@ onMounted(async () => {
 })
 
 const fetchMatchData = async () => {
-    if (!matchId.value) return
+    if (!matchId.value) {
+        return
+    }
+
+    // Reset previous data when loading new match
+    resetForm()
 
     isLoading.value = true
     error.value = ''
 
     try {
-        console.log('Fetching match data for ID:', matchId.value)
-
         // Fetch match data from STRATZ
         const { StratzService } = await import('../services/stratz')
         const data = await StratzService.fetchMatch(matchId.value)
-        console.log('STRATZ match data:', data)
 
         if (!data.id) {
             throw new Error('Invalid match data received')
@@ -267,21 +334,12 @@ const fetchMatchData = async () => {
         matchData.value = data
 
         // Load and normalize hero data
-        console.log('Loading hero data...')
         await loadHeroes()
 
         // Extract heroes from the STRATZ match data
         const heroes: Hero[] = []
 
-        console.log('Processing players:', data.players.length)
         data.players.forEach((player: any, index: number) => {
-            console.log(`Player ${index}:`, {
-                hero_id: player.hero.id,
-                hero_name: player.hero.displayName,
-                role: player.role,
-                isRadiant: player.isRadiant
-            })
-
             // Get hero data from our normalized hero data
             const heroData = getHero(player.hero.id)
             const heroName = heroData?.localized_name || player.hero.displayName
@@ -295,7 +353,6 @@ const fetchMatchData = async () => {
             })
         })
 
-        console.log('Processed heroes:', heroes)
         matchHeroes.value = heroes
         selectedHero.value = null
         selectedRole.value = ''
@@ -317,16 +374,19 @@ const resetForm = () => {
 }
 
 const analyzeMatch = async () => {
-    if (!matchId.value || !selectedRole.value || !selectedHero.value) return
+    if (!matchId.value || !selectedRole.value || !selectedHero.value) {
+        return
+    }
 
     isLoading.value = true
     error.value = ''
 
     try {
         // STRATZ data is already parsed, no need to check parsing status
+        const url = `/report/${matchId.value}/${selectedRole.value}/${selectedHero.value}`
 
         // Navigate to report page with match ID, role, and hero
-        window.location.href = `/report/${matchId.value}/${selectedRole.value}/${selectedHero.value}`
+        window.location.href = url
     } catch (e) {
         error.value = 'Failed to analyze match. Please try again.'
         console.error('Analysis error:', e)
@@ -354,6 +414,23 @@ const getRoleDisplayName = (role: string) => {
         'pos5': 'hard support'
     }
     return roleMap[role] || role
+}
+
+const copyShareLink = async (report: ReportSummary) => {
+    const url = `${window.location.origin}/report/${report.matchId}/${report.role}/${report.heroId}`
+    try {
+        await navigator.clipboard.writeText(url)
+        // TODO: Show success toast
+    } catch (e) {
+        console.error('Failed to copy link:', e)
+    }
+}
+
+const confirmDeleteReport = (reportId: string) => {
+    const report = recentReports.value.find(r => r.id === reportId)
+    if (report && confirm(`Are you sure you want to delete the analysis for ${report.heroName} (${getRoleDisplayName(report.role)}) from match ${report.matchId}?`)) {
+        deleteReport(reportId)
+    }
 }
 
 const deleteReport = (reportId: string) => {

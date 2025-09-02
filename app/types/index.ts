@@ -143,6 +143,13 @@ export interface StratzHeroStats {
 export interface StratzPlayerStats {
     impPerMinute: number[]
     goldPerMinute: number[]
+    experiencePerMinute: number[]
+    level: number[]
+    lastHitsPerMinute: number[]
+    campStack: number[]
+    deniesPerMinute: number[]
+    tripsFountainPerMinute: number[]
+    networthPerMinute: number[]
 }
 
 export interface StratzHeroAverage {
@@ -235,6 +242,7 @@ export interface ComputedPlayerData {
     stratzData?: {
         imp: number
         heroAverage: StratzHeroAverage[]
+        playerStats: StratzPlayerStats
         role: string
         roleBasic: string
         lane: string
@@ -293,6 +301,28 @@ export interface AnalysisReport {
     matchDuration: number
     radiantWin: boolean
     playerSlot: number
+
+    // New hero average analysis fields
+    focusArea?: FocusArea
+    numbersThatMatter?: NumbersThatMatter[]
+    isCoreVersion?: boolean
+}
+
+export interface FocusArea {
+    id: string
+    title: string
+    description: string
+    severity: number
+    category: string
+}
+
+export interface NumbersThatMatter {
+    kpi: string
+    playerValue: number
+    averageValue: number
+    difference: number
+    percentageDiff: number
+    label: string
 }
 
 export interface ReportSummary {

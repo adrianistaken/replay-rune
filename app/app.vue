@@ -4,8 +4,10 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-4">
           <div class="flex items-center">
-            <h1 class="text-2xl font-bold text-accent-primary">Replay Rune</h1>
-            <span class="ml-2 text-sm text-text-secondary">Dota 2 Analysis</span>
+            <NuxtLink to="/" class="flex items-center hover:opacity-80 transition-opacity">
+              <h1 class="text-2xl font-bold text-accent-primary">Replay Rune</h1>
+              <span class="ml-2 text-sm text-text-secondary">Dota 2 Analysis</span>
+            </NuxtLink>
           </div>
           <nav class="flex space-x-4">
             <NuxtLink to="/"

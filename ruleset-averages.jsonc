@@ -1,0 +1,35 @@
+{ "rules": [
+        {
+            "id": "late_6_mid",
+            "applies_to_roles": ["POSITION_2"],
+            "time": 10,
+            "when": "level_delta_vs_avg < -0.7",
+            "severity": 0.85,
+            "category": "Laning",
+            "message": "Level 6 timing lagged by ~${abs(level_delta_vs_avg).toFixed(1)} levels vs typical ${hero} mids.",
+            "fix": "Secure range creeps, control wave 2-3, and consider a small-camp pull at 2:00 when under pressure."
+        },
+        {
+            "id": "pos4_low_contrib_20",
+            "applies_to_roles": ["POSITION_4"],
+            "time": 20,
+            "when": "kill_contrib_delta_vs_avg < -0.12",
+            "severity": 0.7,
+            "category": "Teamplay",
+            "message": "Lower fight involvement by 20. Your kill contribution trails ${hero} pos4 norms.",
+            "fix": "Pair with your stun core for smoke timings and rotate before catapult waves to force fights on your terms."
+        },
+        {
+            "id": "pos5_support_work_15",
+            "applies_to_roles": ["POSITION_5"],
+            "time": 15,
+            "when": "stacks_delta_vs_avg < -0.8 && healing_allies_delta_vs_avg < -0.2",
+            "severity": 0.8,
+            "category": "Support",
+            "message": "Low stacks and ally sustain for 15. You're behind typical ${hero} pos5 benchmarks.",
+            "fix": "Stack nearest camp on minutes 3-7 when lane is stable, and ferry salves/tangos to keep your core on the wave."
+        }
+    ]
+}
+
+  
