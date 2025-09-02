@@ -3,7 +3,7 @@
         <div v-if="isLoading" class="text-center py-12">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary mx-auto mb-4"></div>
             <h2 class="text-xl font-semibold text-text-primary mb-2">Analyzing Match...</h2>
-            <p class="text-text-secondary">Fetching data from STRATZ and generating your report</p>
+            <p class="text-text-secondary">Fetching data and generating your report</p>
         </div>
 
         <div v-else-if="error" class="text-center py-12">
@@ -151,8 +151,12 @@ const route = useRoute()
 const report = ref<AnalysisReport | null>(null)
 const isLoading = ref(true)
 const error = ref('')
+const { loadHeroes, getHero } = useHeroes()
 
 onMounted(async () => {
+    // Load hero data first so images can be displayed
+    await loadHeroes()
+
     const matchId = route.params.matchId as string
     const role = route.params.role as string
     const heroId = route.params.heroId as string
@@ -190,8 +194,6 @@ onMounted(async () => {
         }
 
         // Get hero data
-        const { loadHeroes, getHero } = useHeroes()
-        await loadHeroes()
         const heroData = getHero(player.hero.id)
         const heroName = heroData?.localized_name || player.hero.displayName
 

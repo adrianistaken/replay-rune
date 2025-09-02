@@ -255,15 +255,16 @@
         "category": "Teamplay",
         "text": "Low fight involvement by 20 minutes."
     },
+    // Low spell usage by 10 minutes means they are not using their spells to help in lane.
     {
-        "id": "p5_low_ability_at_20",
+        "id": "p5_low_ability_at_10",
         "roles": ["POSITION_5"],
-        "atMin": 20,
+        "atMin": 10,
         "when": { "operator": "delta_less_than", "kpi": "abilityCasts@20", "value": -0.25 },
         "severity": 0.70,
         "type": "fix",
-        "category": "Teamplay",
-        "text": "Low spell usage by 20 minutes."
+        "category": "Laning",
+        "text": "Low spell usage by 10 minutes."
     },
     {
         "id": "p5_low_heal_at_15",

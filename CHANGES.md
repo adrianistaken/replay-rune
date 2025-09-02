@@ -1,5 +1,43 @@
 # Changelog
 
+## [4.2.1] - 2024-12-19
+
+### Fixed
+- **Hero Images in Reports**: Fixed critical issue where hero images were not displaying in match reports
+  - **Race Condition**: Resolved timing issue where HeroImage components rendered before hero data was loaded
+  - **Missing Hero Data Loading**: Report page now properly loads hero data on mount before rendering
+  - **Component Loading States**: Added skeleton loading animation while hero data is being fetched
+  - **Fallback Handling**: Improved error handling and fallback to default hero images when needed
+  - **Navigation Issues**: Fixed hero image display when navigating from history page to report page
+
+### Technical
+- **Report Page Enhancement**: Added `useHeroes()` call in report page `onMounted` hook
+- **HeroImage Component**: Enhanced with loading states and better error handling
+- **Data Loading Order**: Ensured hero data is loaded before any image components render
+- **Loading UX**: Added skeleton loading animation for better user experience during data fetch
+
+## [4.2.0] - 2024-12-19
+
+### Added
+- **Match Parsing Status Checking**: New feature to handle unparsed matches gracefully
+  - **Unparsed Match Detection**: Automatically detects when a match hasn't been parsed by Stratz yet
+  - **User-Friendly Warnings**: Shows clear warning message when match needs parsing with helpful instructions
+  - **Stratz Integration**: Direct link to Stratz match page for manual parsing
+  - **Background Polling**: Automatically checks parsing status every 30 seconds with user feedback
+  - **Rotating Messages**: Provides rotating status messages during polling to keep users informed
+  - **Automatic Hero Loading**: Once match is parsed, automatically loads hero data and enables analysis
+
+### Changed
+- **Analyze Button Behavior**: Button now shows "Parse Match First, Then Analyze" for unparsed matches
+- **Match Loading Flow**: Users must wait for parsing to complete before proceeding to analysis
+- **User Experience**: Clear guidance on what to do when matches aren't parsed yet
+
+### Technical
+- **Polling System**: Implemented 30-second interval polling for match parsing status
+- **Status Management**: Added `isMatchParsed` computed property and polling state management
+- **Error Handling**: Graceful handling of parsing status checks with user feedback
+- **Memory Management**: Proper cleanup of polling intervals on component unmount
+
 ## [4.1.0] - 2024-12-19
 
 ### Fixed
