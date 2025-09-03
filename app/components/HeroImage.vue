@@ -40,11 +40,6 @@ const imageUrl = computed(() => {
 
     const url = props.type === 'icon' ? getHeroIcon(props.heroId) : getHeroImg(props.heroId)
 
-    // Debug: Log the generated URL for troubleshooting
-    if (process.env.NODE_ENV === 'development') {
-        console.log(`HeroImage: Hero ${props.heroId}, Type: ${props.type}, URL: ${url}`)
-    }
-
     return url
 })
 

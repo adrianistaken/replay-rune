@@ -64,12 +64,24 @@
                 <h2 class="text-xl font-semibold text-text-primary mb-4">What You Did Well</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div v-for="win in report.wins" :key="win.title"
-                        class="p-4 bg-accent-success/10 rounded-lg border-l-4 border-accent-success">
-                        <h3 class="font-semibold text-accent-success">{{ win.title }}</h3>
-                        <p class="text-accent-success/80 mt-1">{{ win.description }}</p>
-                        <div v-if="win.dataSource"
-                            class="text-xs text-accent-success/40 mt-2 italic border-t border-accent-success/20 pt-2">
-                            {{ win.dataSource }}
+                        class="p-4 bg-accent-success/10 rounded-lg border border-accent-success/30 hover:border-accent-success/50 transition-all duration-200">
+                        <div class="flex items-start space-x-3">
+                            <div
+                                class="flex-shrink-0 w-8 h-8 bg-accent-success text-white rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-accent-success text-lg mb-2">{{ win.title }}</h3>
+                                <p class="text-text-primary/90 text-base leading-relaxed mb-3">{{ win.description }}</p>
+                                <div v-if="win.dataComparison"
+                                    class="text-xs text-text-secondary/60 font-mono bg-dark-card/30 rounded px-2 py-1 border border-dark-border/20">
+                                    {{ win.dataComparison }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -80,17 +92,19 @@
                 <h2 class="text-xl font-semibold text-text-primary mb-4">Fixes for Next Game</h2>
                 <div class="space-y-4">
                     <div v-for="(fix, index) in report.fixes" :key="fix.title"
-                        class="flex items-start space-x-4 p-4 bg-accent-error/10 rounded-lg border-l-4 border-accent-error">
-                        <div
-                            class="flex-shrink-0 w-8 h-8 bg-accent-error text-white rounded-full flex items-center justify-center font-bold">
-                            {{ index + 1 }}
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-accent-error">{{ fix.title }}</h3>
-                            <p class="text-accent-error/80 mt-1">{{ fix.description }}</p>
-                            <div v-if="fix.dataSource"
-                                class="text-xs text-accent-error/40 mt-2 italic border-t border-accent-error/20 pt-2">
-                                {{ fix.dataSource }}
+                        class="p-4 bg-accent-error/10 rounded-lg border border-accent-error/30 hover:border-accent-error/50 transition-all duration-200">
+                        <div class="flex items-start space-x-3">
+                            <div
+                                class="flex-shrink-0 w-8 h-8 bg-accent-error text-white rounded-full flex items-center justify-center font-bold text-sm">
+                                {{ index + 1 }}
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-accent-error text-lg mb-2">{{ fix.title }}</h3>
+                                <p class="text-text-primary/90 text-sm leading-relaxed mb-3">{{ fix.description }}</p>
+                                <div v-if="fix.dataComparison"
+                                    class="text-xs text-text-secondary/60 font-mono bg-dark-card/30 rounded px-2 py-1 border border-dark-border/20">
+                                    {{ fix.dataComparison }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -233,6 +247,8 @@ onMounted(async () => {
             radiantWin: matchData.didRadiantWin,
             playerSlot: player.isRadiant ? 0 : 128
         }
+
+        console.log(finalReport.kpis.map(kpi => kpi.description));
 
         report.value = finalReport
 

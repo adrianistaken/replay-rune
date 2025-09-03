@@ -91,6 +91,11 @@ export class StratzService {
                                 roleBasic
                                 numLastHits
                                 numDenies
+                                position
+                                partyId
+                                towerDamage
+                                heroDamage
+                                playerSlot
                                 stats {
                                     impPerMinute
                                     goldPerMinute

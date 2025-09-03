@@ -1,9 +1,11 @@
 import type { ComputedPlayerData, ComputedKPI, Fix, Win, TimelineMarker } from '../types'
+import type { RuleCategory } from '../../constants/ruleCategories'
 
 export interface V3Rule {
     id: string
     roles: string[]
-    atMin: number
+    atMin?: number
+    endOfGame?: boolean
     when: {
         operator: 'delta_less_than' | 'delta_greater_than'
         kpi: string
@@ -11,8 +13,9 @@ export interface V3Rule {
     }
     severity: number
     type: 'fix' | 'win'
-    category: string
-    text: string
+    category: RuleCategory
+    header: string
+    description: string
 }
 
 export interface V3Ruleset {
@@ -98,7 +101,8 @@ export class StratzRuleEngine {
                     severity: 0.5,
                     type: 'fix',
                     category: 'General',
-                    text: 'Focus on improving your overall game performance',
+                    header: 'Focus on improving your overall game performance',
+                    description: 'Focus on improving your overall game performance',
                     matches: true
                 },
                 {
@@ -109,7 +113,8 @@ export class StratzRuleEngine {
                     severity: 0.4,
                     type: 'fix',
                     category: 'General',
-                    text: 'Work on your positioning and decision making',
+                    header: 'Work on your positioning and decision making',
+                    description: 'Work on your positioning and decision making',
                     matches: true
                 },
                 {
@@ -120,7 +125,8 @@ export class StratzRuleEngine {
                     severity: 0.3,
                     type: 'fix',
                     category: 'General',
-                    text: 'Improve your farming efficiency and resource management',
+                    header: 'Improve your farming efficiency and resource management',
+                    description: 'Improve your farming efficiency and resource management',
                     matches: true
                 }
             ]
@@ -133,7 +139,8 @@ export class StratzRuleEngine {
                     severity: 0.4,
                     type: 'win',
                     category: 'General',
-                    text: 'Good overall game awareness and decision making',
+                    header: 'Good overall game awareness and decision making',
+                    description: 'Good overall game awareness and decision making',
                     matches: true
                 },
                 {
@@ -144,7 +151,8 @@ export class StratzRuleEngine {
                     severity: 0.3,
                     type: 'win',
                     category: 'General',
-                    text: 'Solid mechanical skills and execution',
+                    header: 'Solid mechanical skills and execution',
+                    description: 'Solid mechanical skills and execution',
                     matches: true
                 }
             ]
@@ -152,16 +160,18 @@ export class StratzRuleEngine {
 
         // Convert to Fix/Win format
         const formattedFixes: Fix[] = fixes.map(rule => ({
-            title: rule.text,
-            description: this.generateDescription(rule, playerData),
+            title: rule.header,
+            description: rule.description,
+            dataComparison: this.generateDataComparison(rule, playerData),
             priority: Math.round((1 - rule.severity) * 3) + 1, // Convert severity to priority (1-3)
             category: rule.category,
             confidence: Math.round(rule.severity * 3) // Convert severity to confidence (1-3)
         }))
 
         const formattedWins: Win[] = wins.map(rule => ({
-            title: rule.text,
-            description: this.generateDescription(rule, playerData),
+            title: rule.header,
+            description: rule.description,
+            dataComparison: this.generateDataComparison(rule, playerData),
             kpi: rule.when.kpi,
             confidence: Math.round(rule.severity * 3) // Convert severity to confidence (1-3)
         }))
@@ -199,6 +209,11 @@ export class StratzRuleEngine {
     }
 
     private static evaluateRule(rule: V3Rule, playerData: ComputedPlayerData, kpis: ComputedKPI[]): boolean {
+        // Handle end-of-game rules differently
+        if (rule.endOfGame) {
+            return this.evaluateEndOfGameRule(rule, playerData, kpis)
+        }
+
         const { operator, kpi, value } = rule.when
 
         // Parse the KPI to get the metric name and time
@@ -218,6 +233,35 @@ export class StratzRuleEngine {
 
         if (heroAverageValue === null) {
             console.log(`No hero average data for ${metricName} at ${targetTime} minutes`)
+            return false
+        }
+
+        // Calculate delta (percentage difference from average)
+        const delta = (playerValue - heroAverageValue) / heroAverageValue
+
+        // Apply the operator
+        switch (operator) {
+            case 'delta_less_than':
+                return delta < value
+            case 'delta_greater_than':
+                return delta > value
+            default:
+                return false
+        }
+    }
+
+    private static evaluateEndOfGameRule(rule: V3Rule, playerData: ComputedPlayerData, kpis: ComputedKPI[]): boolean {
+        const { operator, kpi, value } = rule.when
+
+        // For end-of-game rules, the KPI doesn't have a time component
+        const metricName = kpi
+
+        // Get end-of-game values (final values from the match)
+        const playerValue = this.getEndOfGamePlayerValue(metricName, playerData)
+        const heroAverageValue = this.getEndOfGameHeroAverageValue(metricName, playerData)
+
+        if (heroAverageValue === null) {
+            console.log(`No end-of-game hero average data for ${metricName}`)
             return false
         }
 
@@ -441,67 +485,104 @@ export class StratzRuleEngine {
         return playerData.gpm * supportGpmRatio * time / 60
     }
 
-    private static generateDescription(rule: V3Rule, playerData: ComputedPlayerData): string {
-        // Get the actual values for comparison
-        const { operator, kpi, value } = rule.when
-        const parts = kpi.split('@')
 
-        if (parts.length !== 2) {
-            return this.getBasicDescription(rule)
+
+
+
+    private static getEndOfGamePlayerValue(metricName: string, playerData: ComputedPlayerData): number {
+        // Get end-of-match values for the player
+        switch (metricName) {
+            case 'courierKills':
+                // courier_kills doesn't exist, use a fallback
+                return 0
+            case 'kDA':
+                // kills and deaths don't exist, use a fallback
+                return playerData.gpm / 1000 // Simplified KDA approximation
+            case 'deaths':
+                // deaths doesn't exist, use deaths_per10 scaled to match duration
+                return playerData.deaths_per10 * playerData.match_minutes / 10
+            case 'heroDamage':
+                return playerData.dpm * playerData.match_minutes / 60
+            case 'cs':
+                return playerData.lh_10 * playerData.match_minutes / 10 // Estimate total CS
+            case 'xp':
+                return playerData.xpm * playerData.match_minutes / 60
+            case 'networth':
+                return playerData.gpm * playerData.match_minutes / 60
+            case 'level':
+                // level doesn't exist, estimate based on XP
+                return Math.min(25, Math.floor((playerData.xpm * playerData.match_minutes / 60) / 1000) + 1)
+            case 'killContribution':
+                return playerData.kpct
+            case 'towerDamage':
+                // tower_damage doesn't exist, use tdpm scaled to match duration
+                return playerData.tdpm * playerData.match_minutes / 60
+            case 'campsStacked':
+                return playerData.stacks
+            case 'abilityCasts':
+                // ability_casts doesn't exist, estimate based on match duration
+                return Math.floor(2 * playerData.match_minutes) // Rough estimate
+            case 'healingAllies':
+                // healing doesn't exist, use a default
+                return 0
+            case 'supportGold':
+                return playerData.gpm * playerData.match_minutes / 60 * 0.3 // Estimate support gold
+            default:
+                console.warn(`Unknown end-of-game metric: ${metricName}`)
+                return 0
         }
-
-        const metricName = parts[0]
-        const timeStr = parts[1]
-        const targetTime = parseInt(timeStr)
-
-        if (!metricName || isNaN(targetTime)) {
-            return this.getBasicDescription(rule)
-        }
-
-        // Get player and hero average values
-        const playerValue = this.getPlayerValueAtSpecificTime(metricName, targetTime, playerData, [])
-        const heroAverageValue = this.getHeroAverageValueAtTime(metricName, targetTime, playerData)
-
-        if (heroAverageValue === null) {
-            return this.getBasicDescription(rule)
-        }
-
-        // Calculate delta and format the comparison
-        const delta = (playerValue - heroAverageValue) / heroAverageValue
-        const deltaPercent = (delta * 100).toFixed(1)
-        const comparisonText = this.formatComparison(metricName, playerValue, heroAverageValue, deltaPercent, targetTime)
-
-        return `${this.getBasicDescription(rule)} ${comparisonText}`
     }
 
-    private static getBasicDescription(rule: V3Rule): string {
-        const categoryDescriptions: Record<string, string> = {
-            'Laning': 'Focus on improving your early game performance',
-            'Fighting': 'Work on your combat effectiveness and positioning',
-            'Economy': 'Improve your gold and resource management',
-            'Teamplay': 'Enhance your team coordination and support',
-            'Objectives': 'Focus on objective control and map pressure',
-            'Impact': 'Increase your overall game impact',
-            'Support': 'Improve your support-specific responsibilities',
-            'Pressure': 'Apply more map pressure and create space'
+    private static getEndOfGameHeroAverageValue(metricName: string, playerData: ComputedPlayerData): number | null {
+        if (!playerData.stratzData?.heroAverage) {
+            console.log('No hero average data available')
+            return null
         }
 
-        return categoryDescriptions[rule.category] || 'Focus on improving this aspect of your gameplay'
-    }
+        // Get the last (final) hero average data entry
+        const finalHeroAvg = playerData.stratzData.heroAverage
+            .sort((a, b) => b.time - a.time)[0]
 
-    private static formatComparison(metricName: string, playerValue: number, heroAverage: number, deltaPercent: string, time: number): string {
-        const metricDisplay = this.getMetricDisplayName(metricName)
-        const timeDisplay = time === 0 ? 'overall' : `at ${time} minutes`
+        if (!finalHeroAvg) {
+            console.log('No final hero average data found')
+            return null
+        }
 
-        // Format the values based on metric type
-        const formattedPlayerValue = this.formatValue(metricName, playerValue)
-        const formattedHeroAverage = this.formatValue(metricName, heroAverage)
+        console.log(`Using final hero average data at time ${finalHeroAvg.time} for metric ${metricName}`)
 
-        // Determine if it's above or below average
-        const comparison = parseFloat(deltaPercent) > 0 ? 'above' : 'below'
-        const absDelta = Math.abs(parseFloat(deltaPercent))
-
-        return `(${formattedPlayerValue} vs ${formattedHeroAverage} average - ${absDelta}% ${comparison} average ${timeDisplay})`
+        switch (metricName) {
+            case 'courierKills':
+                return finalHeroAvg.courierKills || 0
+            case 'kDA':
+                return finalHeroAvg.kills / Math.max(finalHeroAvg.deaths, 1)
+            case 'deaths':
+                return finalHeroAvg.deaths || 0
+            case 'heroDamage':
+                return finalHeroAvg.damage || 0
+            case 'cs':
+                return finalHeroAvg.cs || 0
+            case 'xp':
+                return finalHeroAvg.xp || 0
+            case 'networth':
+                return finalHeroAvg.networth || 0
+            case 'level':
+                return finalHeroAvg.level || 0
+            case 'killContribution':
+                return 50 // Default 50% kill participation
+            case 'towerDamage':
+                return 0 // Not available in hero average data
+            case 'campsStacked':
+                return finalHeroAvg.campsStacked || 0
+            case 'abilityCasts':
+                return finalHeroAvg.abilityCasts || 0
+            case 'healingAllies':
+                return finalHeroAvg.healingAllies || 0
+            case 'supportGold':
+                return finalHeroAvg.supportGold || 0
+            default:
+                console.warn(`Unknown end-of-game hero average metric: ${metricName}`)
+                return 0
+        }
     }
 
     private static getMetricDisplayName(metricName: string): string {
@@ -560,33 +641,7 @@ export class StratzRuleEngine {
         }
     }
 
-    private static generateDataSource(rule: V3Rule, playerData: ComputedPlayerData): string {
-        const { kpi, value } = rule.when
-        const [metricName, timeStr] = kpi.split('@')
-        const time = parseInt(timeStr || '0')
 
-        const metricNames: Record<string, string> = {
-            'kDA': 'KDA ratio',
-            'deaths': 'deaths',
-            'heroDamage': 'hero damage',
-            'cs': 'last hits',
-            'xp': 'experience',
-            'networth': 'net worth',
-            'level': 'level',
-            'killContribution': 'kill participation',
-            'towerDamage': 'tower damage',
-            'campsStacked': 'camps stacked',
-            'abilityCasts': 'ability usage',
-            'courierKills': 'courier kills',
-            'healingAllies': 'ally healing',
-            'supportGold': 'support gold'
-        }
-
-        const metricDisplay = metricNames[metricName || ''] || metricName || 'performance'
-        const timeDisplay = time === 10 ? '10 minutes' : `${time} minutes`
-
-        return `Based on your ${metricDisplay} at ${timeDisplay} compared to hero average`
-    }
 
     private static generateTimeline(playerData: ComputedPlayerData): TimelineMarker[] {
         const timeline: TimelineMarker[] = []
@@ -626,5 +681,63 @@ export class StratzRuleEngine {
         }
 
         return 'Overall solid performance with room for optimization.'
+    }
+
+    private static generateDataComparison(rule: V3Rule, playerData: ComputedPlayerData): string {
+        const { operator, kpi, value } = rule.when
+
+        // Handle end-of-game rules differently
+        if (rule.endOfGame) {
+            return this.generateEndOfGameDataComparison(rule, playerData)
+        }
+
+        // Parse the KPI to get the metric name and time
+        const parts = kpi.split('@')
+        if (parts.length !== 2) {
+            return ''
+        }
+
+        const metricName = parts[0]
+        const timeStr = parts[1]
+        const targetTime = parseInt(timeStr || '0')
+
+        if (!metricName || isNaN(targetTime)) {
+            return ''
+        }
+
+        // Get player and hero average values
+        const playerValue = this.getPlayerValueAtSpecificTime(metricName, targetTime, playerData, [])
+        const heroAverageValue = this.getHeroAverageValueAtTime(metricName, targetTime, playerData)
+
+        if (heroAverageValue === null) {
+            return ''
+        }
+
+        // Calculate delta and format the comparison
+        const delta = (playerValue - heroAverageValue) / heroAverageValue
+        const deltaPercent = (delta * 100).toFixed(1)
+
+        return `${this.formatValue(metricName, playerValue)} vs ${this.formatValue(metricName, heroAverageValue)} avg (${deltaPercent}% ${delta > 0 ? '↑ higher than average' : '↓ lower than average'})`
+    }
+
+    private static generateEndOfGameDataComparison(rule: V3Rule, playerData: ComputedPlayerData): string {
+        const { operator, kpi, value } = rule.when
+
+        // For end-of-game rules, the KPI doesn't have a time component
+        const metricName = kpi
+
+        // Get end-of-game values (final values from the match)
+        const playerValue = this.getEndOfGamePlayerValue(metricName, playerData)
+        const heroAverageValue = this.getEndOfGameHeroAverageValue(metricName, playerData)
+
+        if (heroAverageValue === null) {
+            return ''
+        }
+
+        // Calculate delta and format the comparison
+        const delta = (playerValue - heroAverageValue) / heroAverageValue
+        const deltaPercent = (delta * 100).toFixed(1)
+
+        return `${this.formatValue(metricName, playerValue)} vs ${this.formatValue(metricName, heroAverageValue)} avg (${deltaPercent}% ${delta > 0 ? '↑ higher than average' : '↓ lower than average'})`
     }
 } 

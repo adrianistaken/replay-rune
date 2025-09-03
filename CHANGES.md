@@ -16,6 +16,12 @@
 - **Data Loading Order**: Ensured hero data is loaded before any image components render
 - **Loading UX**: Added skeleton loading animation for better user experience during data fetch
 
+### Cleanup
+- **Ruleset File Consolidation**: Removed duplicate `ruleset.v3.jsonc` from root directory
+  - **Single Source of Truth**: Now only using the version in `public/` folder that's actually loaded by the application
+  - **Eliminated Confusion**: Removed potential for confusion between two identical files
+  - **Cleaner Project Structure**: Simplified project organization by removing unused duplicate
+
 ## [4.2.0] - 2024-12-19
 
 ### Added
@@ -276,3 +282,86 @@
 - **Timeline Markers**: Key timing events in the match
 - **Share Links**: Copyable URLs for sharing reports
 - **Local History**: Browser-based report history 
+
+## [Unreleased]
+
+### Added
+- **End-of-Game Rules Support**: Implemented support for rules that evaluate at the end of the game instead of at specific time intervals
+  - Added `endOfGame` property to V3Rule interface
+  - Updated ruleset.v3.jsonc to include end-of-game rules
+  - Modified rule engine to handle end-of-game rule evaluation
+  - Added `p5_couriers_end_game_win` rule as an example of end-of-game rule
+
+- **Enhanced Rule Structure**: Improved rule messaging with separate header and description fields
+  - Added `header` property for concise rule titles
+  - Added `description` property for detailed explanations
+  - Integrated data comparison showing actual values vs. hero averages
+  - Maintained backward compatibility with existing rule logic
+
+- **Modern UI Design**: Completely redesigned fix and win points with sleek, modern styling
+  - **Enhanced Visual Hierarchy**: Larger, bolder headings with icons for better section identification
+  - **Clean Card Design**: Simple, clean backgrounds with subtle borders and hover effects
+  - **Icon Integration**: Added green checkmark icons for wins and numbered indicators for fixes
+  - **Improved Typography**: Better font weights, sizes, and spacing for readability
+  - **Proper Text Separation**: Description and data comparison text are clearly separated on different lines
+
+### Changed
+- **Ruleset Structure**: Updated ruleset.v3.jsonc to support both time-based and end-of-game rules
+  - Rules with `endOfGame: true` check against final heroAverage values (last object in the list)
+  - Rules with `atMin` property continue to work as before for time-based evaluation
+  - Modified `p5_couriers_at_20_win` to `p5_couriers_end_game_win` to demonstrate end-of-game functionality
+  - Added several new end-of-game rules for different positions and metrics
+
+- **Rule Engine Enhancement**: Streamlined the rule engine with improved messaging
+  - Replaced `text` property with `header` and `description` properties
+  - Added `generateDataComparison()` method for showing actual values used in rule evaluation
+  - Both title and description now use the new structure from the ruleset
+  - Data comparison shows: "Your [Metric]: [Value], Hero Average: [Value], [X]% above/below average"
+
+- **UI Layout Improvements**: Redesigned the presentation of fix and win points
+  - **Separated Content**: Description and data comparison now display on separate lines
+  - **Data Context**: Data comparison appears as subtle, technical sub-text for context
+  - **Better Spacing**: Increased padding, margins, and gaps for improved visual breathing room
+  - **Enhanced Shadows**: Added depth with improved shadow effects and hover states
+  - **Rounded Corners**: Updated to use rounded-xl for a more modern appearance
+
+### Technical Details
+- **Rule Engine Updates**: 
+  - Added `evaluateEndOfGameRule()` method for end-of-game rule evaluation
+  - Added `getEndOfGamePlayerValue()` and `getEndOfGameHeroAverageValue()` methods
+  - Added `generateDataComparison()` and `generateEndOfGameDataComparison()` methods
+  - End-of-game rules use final match values instead of time-scaled estimates
+  - Enhanced rule output with structured header, description, and data comparison
+
+- **Data Handling**:
+  - End-of-game rules access the last (highest time) entry in the heroAverage array
+  - Player values are taken from final match statistics rather than minute-by-minute data
+  - Courier kills and other end-of-match metrics now properly evaluate against final game state
+  - Data comparison shows actual values used in rule evaluation for transparency
+  - **Enhanced GraphQL Query**: Added new player fields for better data analysis
+    - `position`: Player's position in the match
+    - `partyId`: Party/team identifier
+    - `towerDamage`: Total tower damage dealt
+    - `heroDamage`: Total hero damage dealt
+    - `playerSlot`: Player slot number for match identification
+
+- **Centralized Rule Category System**: Created a comprehensive category management system
+  - **Category Constants**: Centralized definition of all available rule categories
+  - **Type Safety**: TypeScript interfaces ensure only valid categories are used
+  - **Category Metadata**: Each category includes description, priority, and color information
+  - **Future-Ready**: System designed for filtering, grouping, and organizing rules
+  - **Consistent Naming**: All rules now use standardized category names (e.g., "LANING", "FIGHTING")
+
+- **UI Enhancements**:
+  - **CSS Classes**: Added custom CSS classes for enhanced card styling, gradients, and transitions
+  - **Hover Effects**: Implemented smooth hover animations with scale and shadow effects
+  - **Data Comparison Styling**: Created dedicated styling for data comparison text with monospace font and subtle backgrounds
+  - **Icon Containers**: Added hover effects for icon containers with scale animations
+  - **Responsive Design**: Improved spacing and layout for different screen sizes
+
+- **Maintenance Benefits**:
+  - All rule text is now centralized in the ruleset file with clear structure
+  - Easy to add new rules with custom headers and descriptions
+  - Data comparison automatically shows relevant metrics and values
+  - Consistent messaging format across the application
+  - Modern, maintainable CSS architecture with reusable classes 

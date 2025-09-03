@@ -97,6 +97,11 @@ export interface StratzPlayer {
     roleBasic: string
     numLastHits: number
     numDenies: number
+    position: string
+    partyId: number
+    towerDamage: number
+    heroDamage: number
+    playerSlot: number
     stats: StratzPlayerStats
     heroAverage: StratzHeroAverage[]
     lane: string
@@ -264,6 +269,7 @@ export interface KPI {
 export interface Fix {
     title: string
     description: string
+    dataComparison?: string
     priority: number
     category: string
     confidence?: number
@@ -272,6 +278,7 @@ export interface Fix {
 export interface Win {
     title: string
     description: string
+    dataComparison?: string
     kpi: string
     confidence?: number
 }

@@ -1,342 +1,746 @@
 {
     // Replay Rune rules v3 - deterministic, heroAverage based
     "rulesVersion": "3.0.0",
+    "categories": {
+        "LANING": "Early game performance and lane efficiency",
+        "FIGHTING": "Combat effectiveness and team fight participation", 
+        "ECONOMY": "Gold management and farming efficiency",
+        "TEAMPLAY": "Team coordination and support activities",
+        "OBJECTIVES": "Objective control and map pressure",
+        "IMPACT": "Overall game impact and contribution",
+        "SUPPORT": "Support-specific responsibilities and activities",
+        "PRESSURE": "Map pressure and space creation"
+    },
   
     // Rules: compare player vs heroAverage at a minute using delta
+    // Rules with endOfGame: true check against the final heroAverage values (last object in the list)
     "rules": [
-      // Universal
-      {
-        "id": "low_kda_at_20",
-        "roles": ["ALL"],
-        "atMin": 20,
-        "when": { "operator": "delta_less_than", "kpi": "kDA@20", "value": -0.25 },
-        "severity": 0.70,
-        "type": "fix",
-        "category": "Fighting",
-        "text": "KDA below typical by 20 minutes."
-      },
-      {
-        "id": "high_deaths_at_20",
-        "roles": ["ALL"],
-        "atMin": 20,
-        "when": { "operator": "delta_greater_than", "kpi": "deaths@20", "value": 0.30 },
-        "severity": 0.60,
-        "type": "fix",
-        "category": "Fighting",
-        "text": "Deaths above typical by 20 minutes."
-      },
-      {
-        "id": "good_damage_at_20",
-        "roles": ["ALL"],
-        "atMin": 20,
-        "when": { "operator": "delta_greater_than", "kpi": "heroDamage@20", "value": 0.25 },
-        "severity": 0.40,
-        "type": "win",
-        "category": "Impact",
-        "text": "Strong damage output by 20 minutes."
-      },
-  
-      // Position 1
-      {
-        "id": "p1_low_cs_at_10",
-        "roles": ["POSITION_1"],
-        "atMin": 10,
-        "when": { "operator": "delta_less_than", "kpi": "cs@10", "value": -0.25 },
-        "severity": 0.75,
-        "type": "fix",
-        "category": "Laning",
-        "text": "CS behind at 10 minutes."
-      },
-      {
-        "id": "p1_xp_at_10_behind",
-        "roles": ["POSITION_1"],
-        "atMin": 10,
-        "when": { "operator": "delta_less_than", "kpi": "xp@10", "value": -0.20 },
-        "severity": 0.80,
-        "type": "fix",
-        "category": "Laning",
-        "text": "Lane XP behind at 10 minutes."
-      },
-      {
-        "id": "p1_nw_at_20_behind",
-        "roles": ["POSITION_1"],
-        "atMin": 20,
-        "when": { "operator": "delta_less_than", "kpi": "networth@20", "value": -0.20 },
-        "severity": 0.80,
-        "type": "fix",
-        "category": "Economy",
-        "text": "Net worth behind at 20 minutes."
-      },
-      {
-        "id": "p1_good_cs_at_10_win",
-        "roles": ["POSITION_1"],
-        "atMin": 10,
-        "when": { "operator": "delta_greater_than", "kpi": "cs@10", "value": 0.25 },
-        "severity": 0.45,
-        "type": "win",
-        "category": "Laning",
-        "text": "Strong CS at 10 minutes."
-      },
-      {
-        "id": "p1_good_xp_at_10_win",
-        "roles": ["POSITION_1"],
-        "atMin": 10,
-        "when": { "operator": "delta_greater_than", "kpi": "xp@10", "value": 0.20 },
-        "severity": 0.40,
-        "type": "win",
-        "category": "Laning",
-        "text": "Good lane XP at 10 minutes."
-      },
-      {
-        "id": "p1_good_networth_at_20_win",
-        "roles": ["POSITION_1"],
-        "atMin": 20,
-        "when": { "operator": "delta_greater_than", "kpi": "networth@20", "value": 0.20 },
-        "severity": 0.50,
-        "type": "win",
-        "category": "Economy",
-        "text": "Strong net worth at 20 minutes."
-      },
-  
-      // Position 2
-      {
-        "id": "p2_late_at_10",
-        "roles": ["POSITION_2"],
-        "atMin": 10,
-        "when": { "operator": "delta_less_than", "kpi": "level@10", "value": -0.50 },
-        "severity": 0.85,
-        "type": "fix",
-        "category": "Laning",
-        "text": "Level 6 late vs typical at 10 minutes."
-      },
-      {
-        "id": "p2_low_kc_at_20",
-        "roles": ["POSITION_2"],
-        "atMin": 20,
-        "when": { "operator": "delta_less_than", "kpi": "killContribution@20", "value": -0.15 },
-        "severity": 0.70,
-        "type": "fix",
-        "category": "Teamplay",
-        "text": "Low fight involvement by 20 minutes."
-      },
-      {
-        "id": "p2_good_xp_at_10_win",
-        "roles": ["POSITION_2"],
-        "atMin": 10,
-        "when": { "operator": "delta_greater_than", "kpi": "xp@10", "value": 0.20 },
-        "severity": 0.40,
-        "type": "win",
-        "category": "Laning",
-        "text": "Good lane XP at 10 minutes."
-      },
-      {
-        "id": "p2_good_level_at_10_win",
-        "roles": ["POSITION_2"],
-        "atMin": 10,
-        "when": { "operator": "delta_greater_than", "kpi": "level@10", "value": 0.50 },
-        "severity": 0.45,
-        "type": "win",
-        "category": "Laning",
-        "text": "Strong level advantage at 10 minutes."
-      },
-  
-      // Position 3
-      {
-        "id": "p3_weak_lane_xp_at_10",
-        "roles": ["POSITION_3"],
-        "atMin": 10,
-        "when": { "operator": "delta_less_than", "kpi": "xp@10", "value": -0.20 },
-        "severity": 0.70,
-        "type": "fix",
-        "category": "Laning",
-        "text": "Lane pressure low at 10 minutes."
-      },
-      {
-        "id": "p3_low_towerdmg_at_20",
-        "roles": ["POSITION_3"],
-        "atMin": 20,
-        "when": { "operator": "delta_less_than", "kpi": "towerDamage@20", "value": -0.30 },
-        "severity": 0.65,
-        "type": "fix",
-        "category": "Objectives",
-        "text": "Low objective pressure by 20 minutes."
-      },
-      {
-        "id": "p3_low_kc_at_20",
-        "roles": ["POSITION_3"],
-        "atMin": 20,
-        "when": { "operator": "delta_less_than", "kpi": "killContribution@20", "value": -0.15 },
-        "severity": 0.70,
-        "type": "fix",
-        "category": "Teamplay",
-        "text": "Low team involvement by 20 minutes."
-      },
-      {
-        "id": "p3_good_xp_at_10_win",
-        "roles": ["POSITION_3"],
-        "atMin": 10,
-        "when": { "operator": "delta_greater_than", "kpi": "xp@10", "value": 0.20 },
-        "severity": 0.40,
-        "type": "win",
-        "category": "Laning",
-        "text": "Strong lane pressure at 10 minutes."
-      },
-      {
-        "id": "p3_good_towerdmg_at_20_win",
-        "roles": ["POSITION_3"],
-        "atMin": 20,
-        "when": { "operator": "delta_greater_than", "kpi": "towerDamage@20", "value": 0.30 },
-        "severity": 0.45,
-        "type": "win",
-        "category": "Objectives",
-        "text": "Strong objective pressure at 20 minutes."
-      },
-  
-      // Position 4
-      {
-        "id": "p4_low_kc_at_20",
-        "roles": ["POSITION_4"],
-        "atMin": 20,
-        "when": { "operator": "delta_less_than", "kpi": "killContribution@20", "value": -0.20 },
-        "severity": 0.70,
-        "type": "fix",
-        "category": "Teamplay",
-        "text": "Impact low by 20 minutes."
-      },
-      {
-        "id": "p4_few_stacks_at_15",
-        "roles": ["POSITION_4"],
-        "atMin": 15,
-        "when": { "operator": "delta_less_than", "kpi": "campsStacked@15", "value": -0.80 },
-        "severity": 0.70,
-        "type": "fix",
-        "category": "Economy",
-        "text": "Few stacks by 15 minutes."
-      },
-      {
-        "id": "p4_low_ability_at_20",
-        "roles": ["POSITION_4"],
-        "atMin": 20,
-        "when": { "operator": "delta_less_than", "kpi": "abilityCasts@20", "value": -0.25 },
-        "severity": 0.65,
-        "type": "fix",
-        "category": "Teamplay",
-        "text": "Low spell usage by 20 minutes."
-      },
-      {
-        "id": "p4_couriers_at_20_win",
-        "roles": ["POSITION_4"],
-        "atMin": 20,
-        "when": { "operator": "delta_greater_than", "kpi": "courierKills@20", "value": 0.50 },
-        "severity": 0.40,
-        "type": "win",
-        "category": "Pressure",
-        "text": "High courier pressure at 20 minutes."
-      },
-      {
-        "id": "p4_good_stacks_at_15_win",
-        "roles": ["POSITION_4"],
-        "atMin": 15,
-        "when": { "operator": "delta_greater_than", "kpi": "campsStacked@15", "value": 0.80 },
-        "severity": 0.45,
-        "type": "win",
-        "category": "Economy",
-        "text": "Strong stacking at 15 minutes."
-      },
+        // ===== UNIVERSAL RULES (ALL ROLES) =====
+        {
+            "id": "all_apm_high",
+            "roles": ["ALL"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "apm", "value": 0.20 },
+            "severity": 0.25,
+            "type": "win",
+            "category": "IMPACT",
+            "header": "High effective APM",
+            "description": "Your actions per minute are well above typical. Good overall tempo and multitasking."
+        },
+        {
+            "id": "all_apm_low_fix",
+            "roles": ["ALL"],
+            "endOfGame": true,
+            "when": { "operator": "delta_less_than", "kpi": "apm", "value": -0.20 },
+            "severity": 0.35,
+            "type": "fix",
+            "category": "IMPACT",
+            "header": "Low APM",
+            "description": "Your pace was low. Add small actions between last hits like camera checks and pre-moves to raise tempo."
+        },
+        {
+            "id": "all_damage_high",
+            "roles": ["ALL"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "damage", "value": 0.25 },
+            "severity": 0.35,
+            "type": "win",
+            "category": "FIGHTING",
+            "header": "High hero damage",
+            "description": "You contributed significantly more damage than typical for this hero. Strong fight presence."
+        },
+        {
+            "id": "all_damage_low_fix",
+            "roles": ["ALL"],
+            "endOfGame": true,
+            "when": { "operator": "delta_less_than", "kpi": "damage", "value": -0.25 },
+            "severity": 0.45,
+            "type": "fix",
+            "category": "FIGHTING",
+            "header": "Low hero damage",
+            "description": "Damage contribution was low. Join fights on timing and itemize to stay active longer."
+        },
+        {
+            "id": "all_ability_casts_high",
+            "roles": ["ALL"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "abilityCasts", "value": 0.20 },
+            "severity": 0.25,
+            "type": "win",
+            "category": "FIGHTING",
+            "header": "Great spell usage",
+            "description": "You are casting more than peers. Good discipline on cooldowns and uptime in skirmishes."
+        },
+        {
+            "id": "all_ability_casts_low_fix",
+            "roles": ["ALL"],
+            "endOfGame": true,
+            "when": { "operator": "delta_less_than", "kpi": "abilityCasts", "value": -0.20 },
+            "severity": 0.40,
+            "type": "fix",
+            "category": "FIGHTING",
+            "header": "Underusing abilities",
+            "description": "Ability usage was low. Cast earlier to trade cooldowns for safety or kill conversion."
+        },
+        {
+            "id": "all_ability_casts_low_10_fix",
+            "roles": ["ALL"],
+            "atMin": 10,
+            "when": { "operator": "delta_less_than", "kpi": "abilityCasts@10", "value": -0.20 },
+            "severity": 0.30,
+            "type": "fix",
+            "category": "LANING",
+            "header": "Low spell usage at 10",
+            "description": "Cast more in the first 10 minutes to secure trades, power runes, and early skirmishes."
+        },
+        {
+            "id": "all_gold_lost_high_fix",
+            "roles": ["ALL"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "goldLost", "value": 0.25 },
+            "severity": 0.45,
+            "type": "fix",
+            "category": "ECONOMY",
+            "header": "High gold lost on death",
+            "description": "Deaths cost above normal. Farm safer lanes, play around vision, and avoid repeat deaths."
+        },
+        {
+            "id": "all_gold_fed_high_fix",
+            "roles": ["ALL"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "goldFed", "value": 0.25 },
+            "severity": 0.50,
+            "type": "fix",
+            "category": "IMPACT",
+            "header": "Fed excess gold",
+            "description": "Enemy gained above normal gold from your deaths. Reset map with wards and avoid solo pushes without info."
+        },
+        {
+            "id": "all_courier_kills_win",
+            "roles": ["ALL"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "courierKills", "value": 0.50 },
+            "severity": 0.20,
+            "type": "win",
+            "category": "PRESSURE",
+            "header": "Courier snipes",
+            "description": "You delayed enemy items and regen. Small pickoffs that add steady map pressure."
+        },
+        {
+            "id": "all_courierKills_20_low_fix",
+            "roles": ["ALL"],
+            "atMin": 20,
+            "when": { "operator": "delta_less_than", "kpi": "courierKills@20", "value": -0.50 },
+            "severity": 0.20,
+            "type": "fix",
+            "category": "PRESSURE",
+            "header": "Missed courier pickoffs by 20",
+            "description": "Look for courier snipes when shoving waves or with vision. Small plays create steady pressure."
+        },
+        {
+            "id": "all_tower_damage_high",
+            "roles": ["ALL"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "towerDamage", "value": 0.25 },
+            "severity": 0.30,
+            "type": "win",
+            "category": "OBJECTIVES",
+            "header": "Good objective pressure",
+            "description": "You converted advantages into tower damage. Nice job turning fights into map control."
+        },
+        {
+            "id": "all_tower_damage_low_fix",
+            "roles": ["ALL"],
+            "endOfGame": true,
+            "when": { "operator": "delta_less_than", "kpi": "towerDamage", "value": -0.25 },
+            "severity": 0.35,
+            "type": "fix",
+            "category": "OBJECTIVES",
+            "header": "Low tower pressure",
+            "description": "After picks or pushes, bring a wave and hit buildings. Place vision to secure the area."
+        },
+        {
+            "id": "all_tower_damage_20_low_fix",
+            "roles": ["ALL"],
+            "atMin": 20,
+            "when": { "operator": "delta_less_than", "kpi": "towerDamage@20", "value": -0.25 },
+            "severity": 0.35,
+            "type": "fix",
+            "category": "OBJECTIVES",
+            "header": "Low building damage by 20",
+            "description": "Convert early picks into chip damage. Bring a wave and secure vision to safely hit the tower."
+        },
+        {
+            "id": "low_kda_at_20",
+            "roles": ["ALL"],
+            "atMin": 20,
+            "when": { "operator": "delta_less_than", "kpi": "kDA@20", "value": -0.25 },
+            "severity": 0.70,
+            "type": "fix",
+            "category": "FIGHTING",
+            "header": "KDA below typical by 20 minutes",
+            "description": "Your kill-death-assist ratio is below average for this hero. Focus on better positioning and decision making in fights."
+        },
+        {
+            "id": "high_deaths_at_20",
+            "roles": ["ALL"],
+            "atMin": 20,
+            "when": { "operator": "delta_greater_than", "kpi": "deaths@20", "value": 0.30 },
+            "severity": 0.60,
+            "type": "fix",
+            "category": "FIGHTING",
+            "header": "Deaths above typical by 20 minutes",
+            "description": "You're dying more frequently than average. Work on improving your positioning, map awareness, and avoiding unnecessary risks."
+        },
+        {
+            "id": "good_damage_at_20",
+            "roles": ["ALL"],
+            "atMin": 20,
+            "when": { "operator": "delta_greater_than", "kpi": "heroDamage@20", "value": 0.25 },
+            "severity": 0.40,
+            "type": "win",
+            "category": "IMPACT",
+            "header": "Strong damage output by 20 minutes",
+            "description": "Excellent damage contribution! You're dealing significantly more damage than typical for this hero, showing strong fight presence."
+        },
 
-      // -------- Position 5 (Hard support) --------
-    {
-        "id": "p5_low_kc_at_20",
-        "roles": ["POSITION_5"],
-        "atMin": 20,
-        "when": { "operator": "delta_less_than", "kpi": "killContribution@20", "value": -0.20 },
-        "severity": 0.75,
-        "type": "fix",
-        "category": "Teamplay",
-        "text": "Low fight involvement by 20 minutes."
-    },
-    // Low spell usage by 10 minutes means they are not using their spells to help in lane.
-    {
-        "id": "p5_low_ability_at_10",
-        "roles": ["POSITION_5"],
-        "atMin": 10,
-        "when": { "operator": "delta_less_than", "kpi": "abilityCasts@20", "value": -0.25 },
-        "severity": 0.70,
-        "type": "fix",
-        "category": "Laning",
-        "text": "Low spell usage by 10 minutes."
-    },
-    {
-        "id": "p5_low_heal_at_15",
-        "roles": ["POSITION_5"],
-        "atMin": 15,
-        "when": { "operator": "delta_less_than", "kpi": "healingAllies@15", "value": -0.30 },
-        "severity": 0.65,
-        "type": "fix",
-        "category": "Support",
-        "text": "Low ally sustain by 15 minutes."
-    },
-    {
-        "id": "p5_low_supportgold_at_15",
-        "roles": ["POSITION_5"],
-        "atMin": 15,
-        "when": { "operator": "delta_less_than", "kpi": "supportGold@15", "value": -0.30 },
-        "severity": 0.60,
-        "type": "fix",
-        "category": "Economy",
-        "text": "Low support income by 15 minutes."
-    },
-    {
-        "id": "p5_few_stacks_at_15",
-        "roles": ["POSITION_5"],
-        "atMin": 15,
-        "when": { "operator": "delta_less_than", "kpi": "campsStacked@15", "value": -0.80 },
-        "severity": 0.60,
-        "type": "fix",
-        "category": "Economy",
-        "text": "Few stacks by 15 minutes."
-    },
-    {
-        "id": "p5_high_ability_at_20_win",
-        "roles": ["POSITION_5"],
-        "atMin": 20,
-        "when": { "operator": "delta_greater_than", "kpi": "abilityCasts@20", "value": 0.20 },
-        "severity": 0.45,
-        "type": "win",
-        "category": "Teamplay",
-        "text": "Active in fights by 20 minutes."
-    },
-    {
-        "id": "p5_high_heal_at_15_win",
-        "roles": ["POSITION_5"],
-        "atMin": 15,
-        "when": { "operator": "delta_greater_than", "kpi": "healingAllies@15", "value": 0.30 },
-        "severity": 0.45,
-        "type": "win",
-        "category": "Support",
-        "text": "Strong ally sustain by 15 minutes."
-    },
-    {
-        "id": "p5_couriers_at_20_win",
-        "roles": ["POSITION_5"],
-        "atMin": 20,
-        "when": { "operator": "delta_greater_than", "kpi": "courierKills@20", "value": 0.50 },
-        "severity": 0.35,
-        "type": "win",
-        "category": "Pressure",
-        "text": "High courier pressure at 20 minutes."
-    },
-    {
-        "id": "p5_low_deaths_at_20_win",
-        "roles": ["POSITION_5"],
-        "atMin": 20,
-        "when": { "operator": "delta_less_than", "kpi": "deaths@20", "value": -0.20 },
-        "severity": 0.45,
-        "type": "win",
-        "category": "Fighting",
-        "text": "Few deaths by 20 minutes."
-    }
-  
+        // ===== POSITION 1 (CARRY) RULES =====
+        {
+            "id": "p1_low_cs_at_10",
+            "roles": ["POSITION_1"],
+            "atMin": 10,
+            "when": { "operator": "delta_less_than", "kpi": "cs@10", "value": -0.25 },
+            "severity": 0.75,
+            "type": "fix",
+            "category": "LANING",
+            "header": "CS behind at 10 minutes",
+            "description": "Your last hit count at 10 minutes is below the typical average for this hero and position. Focus on improving your lane farming efficiency."
+        },
+        {
+            "id": "p1_cs_10_low_fix",
+            "roles": ["POSITION_1"],
+            "atMin": 10,
+            "when": { "operator": "delta_less_than", "kpi": "cs@10", "value": -0.20 },
+            "severity": 0.45,
+            "type": "fix",
+            "category": "LANING",
+            "header": "Low CS at 10",
+            "description": "Focus on wave control and secure CS. Pull aggro and avoid risky trades before key items."
+        },
+        {
+            "id": "p1_good_cs_at_10_win",
+            "roles": ["POSITION_1"],
+            "atMin": 10,
+            "when": { "operator": "delta_greater_than", "kpi": "cs@10", "value": 0.25 },
+            "severity": 0.45,
+            "type": "win",
+            "category": "LANING",
+            "header": "Strong CS at 10 minutes",
+            "description": "Excellent last hitting in the early game. Your farming efficiency is above average for this hero and position."
+        },
+        {
+            "id": "p1_xp_at_10_behind",
+            "roles": ["POSITION_1"],
+            "atMin": 10,
+            "when": { "operator": "delta_less_than", "kpi": "xp@10", "value": -0.20 },
+            "severity": 0.80,
+            "type": "fix",
+            "category": "LANING",
+            "header": "Lane XP behind at 10 minutes",
+            "description": "Your experience gain in the laning phase is below average. Work on maintaining better lane presence and avoiding unnecessary deaths."
+        },
+        {
+            "id": "p1_good_xp_at_10_win",
+            "roles": ["POSITION_1"],
+            "atMin": 10,
+            "when": { "operator": "delta_greater_than", "kpi": "xp@10", "value": 0.20 },
+            "severity": 0.40,
+            "type": "win",
+            "category": "LANING",
+            "header": "Good lane XP at 10 minutes",
+            "description": "Strong experience gain in the laning phase. You're maintaining good lane presence and avoiding unnecessary deaths."
+        },
+        {
+            "id": "p1_nw_at_20_behind",
+            "roles": ["POSITION_1"],
+            "atMin": 20,
+            "when": { "operator": "delta_less_than", "kpi": "networth@20", "value": -0.20 },
+            "severity": 0.80,
+            "type": "fix",
+            "category": "ECONOMY",
+            "header": "Net worth behind at 20 minutes",
+            "description": "Your gold accumulation by 20 minutes is below typical for this hero. Focus on efficient farming patterns and avoiding downtime."
+        },
+        {
+            "id": "p1_good_networth_at_game_end_win",
+            "roles": ["POSITION_1"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "networth", "value": 0.20 },
+            "severity": 0.50,
+            "type": "win",
+            "category": "ECONOMY",
+            "header": "Strong net worth at the end of the game",
+            "description": "Excellent gold accumulation throughout the match. Your farming efficiency and resource management were above average."
+        },
+        {
+            "id": "p1_networth_high",
+            "roles": ["POSITION_1"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "networth", "value": 0.20 },
+            "severity": 0.45,
+            "type": "win",
+            "category": "ECONOMY",
+            "header": "Net worth advantage",
+            "description": "You out-scaled typical carry benchmarks. Good farming patterns and conversion."
+        },
+        {
+            "id": "p1_networth_low_fix",
+            "roles": ["POSITION_1"],
+            "endOfGame": true,
+            "when": { "operator": "delta_less_than", "kpi": "networth", "value": -0.20 },
+            "severity": 0.55,
+            "type": "fix",
+            "category": "ECONOMY",
+            "header": "Behind on farm",
+            "description": "Your net worth lags. Tighten route efficiency and avoid low-odds skirmishes before key items."
+        },
+        {
+            "id": "p1_damage_high",
+            "roles": ["POSITION_1"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "damage", "value": 0.20 },
+            "severity": 0.35,
+            "type": "win",
+            "category": "FIGHTING",
+            "header": "Carry damage online",
+            "description": "You exceeded carry damage benchmarks. Good presence in fights and objective takes."
+        },
+        {
+            "id": "p1_objectives_conversion_fix",
+            "roles": ["POSITION_1"],
+            "endOfGame": true,
+            "when": { "operator": "delta_less_than", "kpi": "towerDamage", "value": -0.20 },
+            "severity": 0.40,
+            "type": "fix",
+            "category": "OBJECTIVES",
+            "header": "Low building damage",
+            "description": "Convert farm leads into towers. Bring waves, hit structures after picks, and call support to ward."
+        },
+
+        // ===== POSITION 2 (MID) RULES =====
+        {
+            "id": "p2_late_level_6_at_10",
+            "roles": ["POSITION_2"],
+            "atMin": 10,
+            "when": { "operator": "delta_less_than", "kpi": "level@10", "value": -0.50 },
+            "severity": 0.85,
+            "type": "fix",
+            "category": "LANING",
+            "header": "Level 6 late vs typical at 10 minutes",
+            "description": "You're behind on experience compared to typical mid laners. Focus on maintaining lane presence and avoiding unnecessary deaths to reach level 6 on time."
+        },
+        {
+            "id": "p2_good_xp_at_10_win",
+            "roles": ["POSITION_2"],
+            "atMin": 10,
+            "when": { "operator": "delta_greater_than", "kpi": "xp@10", "value": 0.20 },
+            "severity": 0.40,
+            "type": "win",
+            "category": "LANING",
+            "header": "Good lane XP at 10 minutes",
+            "description": "Strong experience gain in the mid lane. You're maintaining good lane presence and avoiding unnecessary deaths."
+        },
+        {
+            "id": "p2_good_level_at_10_win",
+            "roles": ["POSITION_2"],
+            "atMin": 10,
+            "when": { "operator": "delta_greater_than", "kpi": "level@10", "value": 0.50 },
+            "severity": 0.45,
+            "type": "win",
+            "category": "LANING",
+            "header": "Strong level advantage at 10 minutes",
+            "description": "Excellent experience gain! You're ahead of the typical level curve for mid laners, giving you a significant advantage."
+        },
+        {
+            "id": "p2_low_kc_at_20",
+            "roles": ["POSITION_2"],
+            "atMin": 20,
+            "when": { "operator": "delta_less_than", "kpi": "killContribution@20", "value": -0.15 },
+            "severity": 0.70,
+            "type": "fix",
+            "category": "TEAMPLAY",
+            "header": "Low fight involvement by 20 minutes",
+            "description": "Your participation in team fights and skirmishes is below average. Look for opportunities to join fights and support your team."
+        },
+        {
+            "id": "p2_casts_high",
+            "roles": ["POSITION_2"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "abilityCasts", "value": 0.25 },
+            "severity": 0.35,
+            "type": "win",
+            "category": "FIGHTING",
+            "header": "Active spell rotations",
+            "description": "You cast and rotated more than peers. Strong tempo setting from mid."
+        },
+        {
+            "id": "p2_damage_low_fix",
+            "roles": ["POSITION_2"],
+            "endOfGame": true,
+            "when": { "operator": "delta_less_than", "kpi": "damage", "value": -0.25 },
+            "severity": 0.45,
+            "type": "fix",
+            "category": "IMPACT",
+            "header": "Low mid impact",
+            "description": "Damage was below mid benchmarks. Shove waves for runes and rotate with smokes to pressure sides."
+        },
+        {
+            "id": "p2_mid_pressure_12_fix",
+            "roles": ["POSITION_2"],
+            "atMin": 12,
+            "when": { "operator": "delta_less_than", "kpi": "towerDamage@12", "value": -0.20 },
+            "severity": 0.40,
+            "type": "fix",
+            "category": "PRESSURE",
+            "header": "Low mid pressure by 12",
+            "description": "Chip mid tower after wave shoves and rune wins. Forcing rotations opens the map."
+        },
+
+        // ===== POSITION 3 (OFFLANE) RULES =====
+        {
+            "id": "p3_weak_lane_xp_at_10",
+            "roles": ["POSITION_3"],
+            "atMin": 10,
+            "when": { "operator": "delta_less_than", "kpi": "xp@10", "value": -0.20 },
+            "severity": 0.70,
+            "type": "fix",
+            "category": "LANING",
+            "header": "Lane pressure low at 10 minutes",
+            "description": "Your experience gain in the laning phase is below average. Work on maintaining better lane presence and avoiding unnecessary deaths."
+        },
+        {
+            "id": "p3_good_xp_at_10_win",
+            "roles": ["POSITION_3"],
+            "atMin": 10,
+            "when": { "operator": "delta_greater_than", "kpi": "xp@10", "value": 0.20 },
+            "severity": 0.40,
+            "type": "win",
+            "category": "LANING",
+            "header": "Strong lane pressure at 10 minutes",
+            "description": "Strong experience gain in the laning phase. You're maintaining good lane presence and avoiding unnecessary deaths."
+        },
+        {
+            "id": "p3_low_towerdmg_at_20",
+            "roles": ["POSITION_3"],
+            "atMin": 20,
+            "when": { "operator": "delta_less_than", "kpi": "towerDamage@20", "value": -0.30 },
+            "severity": 0.65,
+            "type": "fix",
+            "category": "OBJECTIVES",
+            "header": "Low objective pressure by 20 minutes",
+            "description": "Your objective pressure by 20 minutes is below average. Focus on engaging objectives and pushing the game forward."
+        },
+        {
+            "id": "p3_good_towerdmg_at_20_win",
+            "roles": ["POSITION_3"],
+            "atMin": 20,
+            "when": { "operator": "delta_greater_than", "kpi": "towerDamage@20", "value": 0.30 },
+            "severity": 0.45,
+            "type": "win",
+            "category": "OBJECTIVES",
+            "header": "Strong objective pressure at 20 minutes",
+            "description": "Your objective pressure by 20 minutes is above average. You're effectively pushing the game forward and engaging objectives."
+        },
+        {
+            "id": "p3_low_kc_at_20",
+            "roles": ["POSITION_3"],
+            "atMin": 20,
+            "when": { "operator": "delta_less_than", "kpi": "killContribution@20", "value": -0.15 },
+            "severity": 0.70,
+            "type": "fix",
+            "category": "TEAMPLAY",
+            "header": "Low team involvement by 20 minutes",
+            "description": "Your participation in team fights and skirmishes is below average. Look for opportunities to join fights and support your team."
+        },
+        {
+            "id": "p3_damage_high",
+            "roles": ["POSITION_3"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "damage", "value": 0.20 },
+            "severity": 0.35,
+            "type": "win",
+            "category": "FIGHTING",
+            "header": "Bulky damage dealer",
+            "description": "You output more damage than typical offlaners. Strong front to back fights."
+        },
+        {
+            "id": "p3_gold_lost_high_fix",
+            "roles": ["POSITION_3"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "goldLost", "value": 0.25 },
+            "severity": 0.45,
+            "type": "fix",
+            "category": "IMPACT",
+            "header": "Costly frontlining",
+            "description": "Deaths bled excess gold. Itemize for survivability and force fights on your vision."
+        },
+        {
+            "id": "p3_objectives_pressure_15_win",
+            "roles": ["POSITION_3"],
+            "atMin": 15,
+            "when": { "operator": "delta_greater_than", "kpi": "towerDamage@15", "value": 0.25 },
+            "severity": 0.35,
+            "type": "win",
+            "category": "OBJECTIVES",
+            "header": "Early tower pressure",
+            "description": "You translated lane wins into building damage. Good objective focus."
+        },
+
+        // ===== POSITION 4 (SOFT SUPPORT) RULES =====
+        {
+            "id": "p4_low_kc_at_20",
+            "roles": ["POSITION_4"],
+            "atMin": 20,
+            "when": { "operator": "delta_less_than", "kpi": "killContribution@20", "value": -0.20 },
+            "severity": 0.70,
+            "type": "fix",
+            "category": "TEAMPLAY",
+            "header": "Impact low by 20 minutes",
+            "description": "Your kill contribution by 20 minutes is below average. Focus on engaging fights and contributing to your team's success."
+        },
+        {
+            "id": "p4_low_ability_at_20",
+            "roles": ["POSITION_4"],
+            "atMin": 20,
+            "when": { "operator": "delta_less_than", "kpi": "abilityCasts@20", "value": -0.25 },
+            "severity": 0.65,
+            "type": "fix",
+            "category": "TEAMPLAY",
+            "header": "Low spell usage by 20 minutes",
+            "description": "You're not using your spells as effectively as typical for this hero. Focus on better spell usage and decision making."
+        },
+        {
+            "id": "p4_few_stacks_at_15",
+            "roles": ["POSITION_4"],
+            "atMin": 15,
+            "when": { "operator": "delta_less_than", "kpi": "campsStacked@15", "value": -0.80 },
+            "severity": 0.70,
+            "type": "fix",
+            "category": "ECONOMY",
+            "header": "Few stacks by 15 minutes",
+            "description": "Your gold accumulation by 15 minutes is below typical for this hero. Focus on efficient farming patterns and avoiding downtime."
+        },
+        {
+            "id": "p4_good_stacks_at_15_win",
+            "roles": ["POSITION_4"],
+            "atMin": 15,
+            "when": { "operator": "delta_greater_than", "kpi": "campsStacked@15", "value": 0.80 },
+            "severity": 0.45,
+            "type": "win",
+            "category": "ECONOMY",
+            "header": "Strong stacking at 15 minutes",
+            "description": "Your gold accumulation by 15 minutes is above typical for this hero. Your farming efficiency and resource management are strong."
+        },
+        {
+            "id": "p4_good_stacks_at_end_game_win",
+            "roles": ["POSITION_4"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "campsStacked", "value": 0.80 },
+            "severity": 0.45,
+            "type": "win",
+            "category": "ECONOMY",
+            "header": "Strong stacking at the end of the game",
+            "description": "Your gold accumulation by the end of the game is above typical for this hero. Your farming efficiency and resource management are strong."
+        },
+        {
+            "id": "p4_couriers_end_game_win",
+            "roles": ["POSITION_4"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "courierKills", "value": 0.50 },
+            "severity": 0.45,
+            "type": "win",
+            "category": "PRESSURE",
+            "header": "High courier pressure throughout the game",
+            "description": "Your courier kills by the end of the game are above average. Your team's pressure management and objective control are strong."
+        },
+        {
+            "id": "p4_camps_stacked_win",
+            "roles": ["POSITION_4"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "campsStacked", "value": 0.30 },
+            "severity": 0.30,
+            "type": "win",
+            "category": "ECONOMY",
+            "header": "Great stacking",
+            "description": "You stacked significantly more than peers. Strong economic support for your cores."
+        },
+        {
+            "id": "p4_support_gold_high",
+            "roles": ["POSITION_4"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "supportGold", "value": 0.25 },
+            "severity": 0.30,
+            "type": "win",
+            "category": "ECONOMY",
+            "header": "Support income on track",
+            "description": "Your support gold kept pace. Good bounty rune control and efficient movements."
+        },
+        {
+            "id": "p4_camps_stacked_12_low_fix",
+            "roles": ["POSITION_4"],
+            "atMin": 12,
+            "when": { "operator": "delta_less_than", "kpi": "campsStacked@12", "value": -0.25 },
+            "severity": 0.35,
+            "type": "fix",
+            "category": "TEAMPLAY",
+            "header": "Low stacking tempo by 12",
+            "description": "Fit stacks into rotations while warding or moving between plays to boost team economy."
+        },
+
+        // ===== POSITION 5 (HARD SUPPORT) RULES =====
+        {
+            "id": "p5_low_kc_at_20",
+            "roles": ["POSITION_5"],
+            "atMin": 20,
+            "when": { "operator": "delta_less_than", "kpi": "killContribution@20", "value": -0.20 },
+            "severity": 0.75,
+            "type": "fix",
+            "category": "TEAMPLAY",
+            "header": "Low fight involvement by 20 minutes",
+            "description": "Your participation in team fights and skirmishes is below average. Look for opportunities to join fights and support your team."
+        },
+        {
+            "id": "p5_low_ability_at_10",
+            "roles": ["POSITION_5"],
+            "atMin": 10,
+            "when": { "operator": "delta_less_than", "kpi": "abilityCasts@20", "value": -0.25 },
+            "severity": 0.70,
+            "type": "fix",
+            "category": "LANING",
+            "header": "Low spell usage by 10 minutes",
+            "description": "You're not using your spells as effectively as typical for this hero. Focus on better spell usage and decision making."
+        },
+        {
+            "id": "p5_low_supportgold_at_15",
+            "roles": ["POSITION_5"],
+            "atMin": 15,
+            "when": { "operator": "delta_less_than", "kpi": "supportGold@15", "value": -0.30 },
+            "severity": 0.60,
+            "type": "fix",
+            "category": "ECONOMY",
+            "header": "Low support income by 15 minutes",
+            "description": "Your support income by 15 minutes is below typical for this hero. Focus on efficient farming patterns and avoiding downtime."
+        },
+        {
+            "id": "p5_few_stacks_at_15",
+            "roles": ["POSITION_5"],
+            "atMin": 15,
+            "when": { "operator": "delta_less_than", "kpi": "campsStacked@15", "value": -0.80 },
+            "severity": 0.60,
+            "type": "fix",
+            "category": "ECONOMY",
+            "header": "Few stacks by 15 minutes",
+            "description": "Your gold accumulation by 15 minutes is below typical for this hero. Focus on efficient farming patterns and avoiding downtime."
+        },
+        {
+            "id": "p5_high_ability_at_20_win",
+            "roles": ["POSITION_5"],
+            "atMin": 20,
+            "when": { "operator": "delta_greater_than", "kpi": "abilityCasts@20", "value": 0.20 },
+            "severity": 0.45,
+            "type": "win",
+            "category": "TEAMPLAY",
+            "header": "Active in fights by 20 minutes",
+            "description": "Your kill contribution by 20 minutes is above average. You're effectively engaging fights and contributing to your team's success."
+        },
+        {
+            "id": "p5_high_heal_at_game_end_win",
+            "roles": ["POSITION_5"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "healingAllies", "value": 0.30 },
+            "severity": 0.45,
+            "type": "win",
+            "category": "SUPPORT",
+            "header": "Strong ally sustain at the end of the game",
+            "description": "Your ally healing by the end of the game is above average. Your team's sustain and resource management are strong."
+        },
+        {
+            "id": "p5_couriers_end_game_win",
+            "roles": ["POSITION_5"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "courierKills", "value": 0.50 },
+            "severity": 0.40,
+            "type": "win",
+            "category": "PRESSURE",
+            "header": "High courier pressure throughout the game",
+            "description": "Your courier kills by the end of the game are above average. Your team's pressure management and objective control are strong."
+        },
+        {
+            "id": "p5_good_stacks_at_15_win",
+            "roles": ["POSITION_5"],
+            "atMin": 15,
+            "when": { "operator": "delta_greater_than", "kpi": "campsStacked@15", "value": 0.80 },
+            "severity": 0.45,
+            "type": "win",
+            "category": "ECONOMY",
+            "header": "Strong stacking at 15 minutes",
+            "description": "Your gold accumulation by 15 minutes is above typical for this hero. Your farming efficiency and resource management are strong."
+        },
+        {
+            "id": "p5_good_stacks_at_end_game_win",
+            "roles": ["POSITION_5"],
+            "atMin": 15,
+            "when": { "operator": "delta_greater_than", "kpi": "campsStacked", "value": 0.80 },
+            "severity": 0.45,
+            "type": "win",
+            "category": "ECONOMY",
+            "header": "Strong stacking at the end of the game",
+            "description": "Your gold accumulation by the end of the game is above typical for this hero. Your farming efficiency and resource management are strong."
+        },
+        {
+            "id": "p5_low_deaths_at_20_win",
+            "roles": ["POSITION_5"],
+            "atMin": 20,
+            "when": { "operator": "delta_less_than", "kpi": "deaths@20", "value": -0.20 },
+            "severity": 0.45,
+            "type": "win",
+            "category": "FIGHTING",
+            "header": "Few deaths by 20 minutes",
+            "description": "Your deaths by 20 minutes are below average. You're managing your health and positioning well."
+        },
+        {
+            "id": "p5_healing_allies_high",
+            "roles": ["POSITION_5"],
+            "endOfGame": true,
+            "when": { "operator": "delta_greater_than", "kpi": "healingAllies", "value": 0.30 },
+            "severity": 0.30,
+            "type": "win",
+            "category": "TEAMPLAY",
+            "header": "High ally healing",
+            "description": "Excellent sustain. Your healing exceeded typical 5 benchmarks."
+        },
+        {
+            "id": "p5_healing_allies_low_fix",
+            "roles": ["POSITION_5"],
+            "endOfGame": true,
+            "when": { "operator": "delta_less_than", "kpi": "healingAllies", "value": -0.25 },
+            "severity": 0.40,
+            "type": "fix",
+            "category": "SUPPORT",
+            "header": "Low healing impact",
+            "description": "Consider earlier raindrops, wand, and utility. Stay closer to cores to get value from spells and items."
+        },
+        {
+            "id": "p5_support_gold_low_fix",
+            "roles": ["POSITION_5"],
+            "endOfGame": true,
+            "when": { "operator": "delta_less_than", "kpi": "supportGold", "value": -0.25 },
+            "severity": 0.40,
+            "type": "fix",
+            "category": "ECONOMY",
+            "header": "Poor support income",
+            "description": "Secure bounties, de-ward efficiently, and avoid soaking dead lanes alone to keep income flowing."
+        }
     ]
-  }
+}
   
