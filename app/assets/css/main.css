@@ -1,17 +1,57 @@
+/* Font imports first */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap');
+
 @import "tailwindcss";
 
-/* Base styles for the dark, data-focused theme */
+/* CSS Variables - Define these first */
+:root {
+    --primary-color: #cf5a2c;
+    --secondary-color: #8a2be2;
+    --accent-color: #cf5a2c;
+    --background-color: #1a1a2e;
+    --card-background: #2a2a4a;
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --border-glow: #0df2f2;
+    --team-radiant: #2ECCB0;
+    --team-dire: #E5534B;
+    --accent-success: #2ECCB0;
+    --accent-error: #E5534B;
+}
+
+/* Base styles - Override with new design system */
 @layer base {
     html {
-        background-color: #12181F;
-        color: #EAEAEA;
+        background-color: var(--background-color) !important;
+        color: var(--text-primary) !important;
     }
 
     body {
-        background-color: #12181F;
-        color: #EAEAEA;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: var(--background-color) !important;
+        color: var(--text-primary) !important;
+        font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
+}
+
+/* Rune Pattern Background */
+.rune-pattern {
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(13, 242, 242, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 80% 90%, rgba(138, 43, 226, 0.05) 0%, transparent 20%);
+    background-position: 0 0, 50px 50px;
+    background-size: 100px 100px;
+}
+
+/* Glowing Button Effects */
+.glowing-button {
+    box-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color);
+    transition: box-shadow 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.glowing-button:hover {
+    box-shadow: 0 0 15px var(--primary-color), 0 0 25px var(--primary-color);
+    transform: translateY(-2px);
 }
 
 /* Custom scrollbar for the dark theme */
@@ -39,10 +79,81 @@
     }
 }
 
-/* Focus styles for better accessibility */
-@layer components {
-    .focus-accent:focus {
-        outline: 2px solid #4DA6FF;
-        outline-offset: 2px;
+/* Remove default browser outlines and borders */
+@layer base {
+    * {
+        outline: none !important;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+        outline: none !important;
+        border: none !important;
+    }
+
+    button:focus,
+    input:focus,
+    textarea:focus,
+    select:focus {
+        outline: none !important;
+        border: none !important;
+    }
+}
+
+/* Utility classes for the new design system */
+@layer utilities {
+    .bg-primary {
+        background-color: var(--primary-color);
+    }
+
+    .bg-secondary {
+        background-color: var(--secondary-color);
+    }
+
+    .bg-accent {
+        background-color: var(--accent-color);
+    }
+
+    .bg-bg {
+        background-color: var(--background-color);
+    }
+
+    .bg-card {
+        background-color: var(--card-background);
+    }
+
+    .text-primary {
+        color: var(--text-primary);
+    }
+
+    .text-secondary {
+        color: var(--text-secondary);
+    }
+
+    .text-accent {
+        color: var(--accent-color);
+    }
+
+    .border-primary {
+        border-color: var(--primary-color);
+    }
+
+    .border-glow {
+        border-color: var(--border-glow);
+    }
+
+    /* New accent color utilities */
+    .bg-accent-orange {
+        background-color: #cf5a2c;
+    }
+
+    .text-accent-orange {
+        color: #cf5a2c;
+    }
+
+    .border-accent-orange {
+        border-color: #cf5a2c;
     }
 }

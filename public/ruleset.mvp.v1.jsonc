@@ -1,0 +1,120 @@
+{
+  // Replay Rune - MVP Rules v1
+  // Keep it small, testable, and explainable.
+  "rulesVersion": "mvp-1.0.0",
+
+  "categories": {
+    "LANING": "Early game performance and lane efficiency",
+    "TEAMPLAY": "Team coordination and support activities",
+    "ECONOMY": "Gold management and farming efficiency",
+    "FIGHTING": "Combat effectiveness and survivability"
+  },
+
+  // Operators supported in MVP:
+  //  - gt, gte, lt, lte : numeric vs value
+  //  - gt_pct, lt_pct   : player vs benchmark by percentage (delta / bench)
+  //
+  // 'when' section compares either a raw feature (e.g., timeToLevel6)
+  // or a benchmarked KPI (e.g., gpm@20) to a value.
+
+  "selectionPolicy": {
+    // Show at most 3 findings total, and at most 2 per category.
+    "maxFindingsTotal": 3,
+    "maxFindingsPerCategory": 2,
+    // Guarantee one win and one fix when possible.
+    "mustInclude": { "win": 1, "fix": 1 },
+    // Prefer higher severity, then larger delta.
+    "tieBreakers": ["severity", "absDelta"]
+  },
+
+  "rules": [
+    {
+      "id": "laning_l6_slow",
+      "roles": ["ALL"],
+      "atMin": 10,
+      // Player time to level 6 vs hero benchmark at 10 mins.
+      "when": { "operator": "gt_pct", "kpi": "timeToLevel6", "value": 0.12 },
+      "severity": 0.6,
+      "type": "fix",
+      "category": "LANING",
+      "header": "Late level 6",
+      "description": "You reached level 6 later than peers ({player.timeToLevel6} vs {bench.timeToLevel6}). Stay for one extra wave before rotating so your first ult/timing lands earlier.",
+      // Simple contextual dampeners (optional)
+      "context": [
+        { "if": { "operator": "gte", "kpi": "pre10.assists", "value": 1 }, "effect": "dampen", "by": 0.4 },
+        { "if": { "operator": "gte", "kpi": "pre10.stacksDone", "value": 2 }, "effect": "dampen", "by": 0.4 }
+      ],
+      "evidence": ["player.timeToLevel6", "bench.timeToLevel6", "pre10.assists", "pre10.stacksDone"]
+    },
+
+    {
+      "id": "teamplay_vision_good",
+      "roles": ["POSITION_4", "POSITION_5", "ALL"],
+      "atMin": 15,
+      // Ward uptime relative to hero/role peers at 15
+      "when": { "operator": "gt_pct", "kpi": "wardUptimePct@15", "value": 0.20 },
+      "severity": 0.45,
+      "type": "win",
+      "category": "TEAMPLAY",
+      "header": "Strong vision control",
+      "description": "Your ward uptime was higher than peers (+{deltaPct(wardUptimePct@15)}). Keep refreshing vision around power runes and objective setups.",
+      "evidence": ["player.wardUptimePct@15", "bench.wardUptimePct@15", "pre15.observerWardsPlaced"]
+    },
+
+    {
+      "id": "economy_gpm_low_20",
+      "roles": ["ALL"],
+      "atMin": 20,
+      // GPM at 20 below benchmark by >12%
+      "when": { "operator": "lt_pct", "kpi": "gpm@20", "value": -0.12 },
+      "severity": 0.55,
+      "type": "fix",
+      "category": "ECONOMY",
+      "header": "Slow gold at 20",
+      "description": "Your GPM lagged peers at 20 ({player.gpm@20} vs {bench.gpm@20}). Reduce death downtime and chain camps between waves.",
+      "context": [
+        { "if": { "operator": "gte", "kpi": "pre20.deaths", "value": 3 }, "effect": "attach_note", "note": "Frequent early deaths suppressed GPM." }
+      ],
+      "evidence": ["player.gpm@20", "bench.gpm@20", "pre20.deaths"]
+    },
+
+    {
+      "id": "fighting_deaths_high_15",
+      "roles": ["ALL"],
+      "atMin": 15,
+      "when": { "operator": "gt", "kpi": "pre15.deaths", "value": 4 },
+      "severity": 0.6,
+      "type": "fix",
+      "category": "FIGHTING",
+      "header": "Too many early deaths",
+      "description": "High early deaths slowed your tempo ({pre15.deaths}). Play around vision and bring a TP/defensive item to avoid repeat picks.",
+      "evidence": ["pre15.deaths"]
+    },
+
+    {
+      "id": "teamplay_stacks_win",
+      "roles": ["POSITION_4", "POSITION_5", "ALL"],
+      "atMin": 12,
+      "when": { "operator": "gte", "kpi": "pre12.stacksDone", "value": 2 },
+      "severity": 0.35,
+      "type": "win",
+      "category": "TEAMPLAY",
+      "header": "You created economy",
+      "description": "You stacked {pre12.stacksDone} camps early. Nice job converting lane time into team gold.",
+      "evidence": ["pre12.stacksDone"]
+    },
+
+    {
+      "id": "economy_objective_conversion_fix",
+      "roles": ["POSITION_1", "POSITION_2", "POSITION_3", "ALL"],
+      "endOfGame": true,
+      "when": { "operator": "lt_pct", "kpi": "towerDamage", "value": -0.20 },
+      "severity": 0.5,
+      "type": "fix",
+      "category": "ECONOMY",
+      "header": "Low building damage",
+      "description": "Convert farm and picks into objectives. After winning a fight, bring the wave and hit structures to lock in leads.",
+      "evidence": ["player.towerDamage", "bench.towerDamage"]
+    }
+  ]
+}

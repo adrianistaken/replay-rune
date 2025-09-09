@@ -1,3 +1,70 @@
+### Fixed
+- **Typography Balance**: Reduced oversized header text across all pages for better visual hierarchy
+  - **Main Page Headers**: Reduced from `text-4xl lg:text-5xl` to `text-3xl lg:text-4xl`
+  - **Section Headers**: Reduced from `text-3xl` to `text-2xl lg:text-3xl`
+  - **Improved Readability**: Better text size balance across home, analysis, history, subscribe, and report pages
+  - **Visual Consistency**: More harmonious typography scale throughout the application
+
+## [4.4.0] - 2024-12-19
+
+### Added
+- **New Hero Layout Design**: Completely redesigned hero selection interface for better visual representation
+  - **Horizontal 5v5 Layout**: Heroes now display in a horizontal line-up format similar to Dota 2 scoreboards
+  - **Position-Based Sorting**: Heroes are automatically sorted by position (1-5) when available from STRATZ data
+  - **Team Separation**: Clear visual separation between Radiant (top) and Dire (bottom) teams
+  - **VS Separator**: Added prominent "VS" text between teams for better match visualization
+  - **Position Display**: Shows position number under each hero name for clarity
+
+### Changed
+- **Hero Display Format**: Replaced vertical grid layout with horizontal card-based design
+  - **Card Layout**: Each hero now displays as a vertical card with image, name, and position
+  - **Larger Hero Images**: Increased hero image size from 48x48 to 64x64 pixels for better visibility
+  - **Centered Alignment**: Hero names and positions are now center-aligned for cleaner appearance
+  - **Responsive Design**: Layout automatically adapts to mobile screens with proper stacking
+  - **Consistent Card Widths**: All hero cards now have uniform width (w-20 on mobile, w-24 on desktop)
+  - **Compact VS Separator**: Reduced VS text size from text-2xl to text-lg for better proportion
+  - **Optimized Spacing**: Reduced gaps between cards and teams for tighter, more professional layout
+
+### Technical
+- **Hero Interface Update**: Added `position` field to Hero interface for position-based sorting
+- **Position Data Integration**: Enhanced hero extraction to capture position data from STRATZ API
+- **Computed Properties**: Updated radiantHeroes and direHeroes to sort by position when available
+- **Fallback Handling**: Graceful fallback to original order when position data is unavailable
+- **Mobile Responsiveness**: Implemented flexbox-based responsive design that stacks vertically on small screens
+- **Fixed Width Cards**: Used Tailwind width classes (w-20, w-24) for consistent card sizing
+- **Text Truncation**: Added truncate class to hero names to prevent overflow in fixed-width cards
+
+### Responsive Design
+- **Desktop Layout**: Heroes display horizontally in a row with consistent spacing and uniform card widths
+- **Mobile Layout**: On small screens, heroes stack vertically while maintaining team grouping and card consistency
+- **Flexible Wrapping**: Uses flexbox without flex-wrap to ensure horizontal alignment on larger screens
+- **Consistent Spacing**: Maintains proper gaps (gap-3 on mobile, gap-4 on desktop) across all device sizes
+
+## [4.3.0] - 2024-12-19
+
+### Added
+- **Report Page Styling**: Completely restyled individual analysis report page to match other pages
+  - **Consistent Header**: Added same navigation header with mobile menu support
+  - **Background Integration**: Applied Dota 2 background image and overlay system
+  - **Gradient Styling**: Used same gradient backgrounds and box-shadows for all elements
+  - **Color System Fix**: Replaced all old color classes with new CSS variable system
+  - **Enhanced Layout**: Improved loading states, error states, and report content sections
+  - **Mobile Responsiveness**: Added mobile menu and responsive design elements
+  - **Complete Design Unity**: All five main pages now share identical design language
+
+### Changed
+- **Visual Consistency**: All pages now share the same beautiful, cohesive design language
+- **Color System**: Unified color usage across all components and pages
+- **Component Styling**: Consistent gradient backgrounds and shadows throughout
+- **Typography**: Improved text hierarchy and readability across all pages
+
+### Technical
+- **Report Page Overhaul**: Complete template restructure with new styling system
+- **Mobile Menu Integration**: Added consistent mobile navigation to report page
+- **Loading States**: Enhanced loading and error states with new design system
+- **Performance Metrics**: Improved KPI display with better visual hierarchy
+- **Hero Display**: Enhanced hero information display with larger images and better layout
+
 # Changelog
 
 ## [4.2.1] - 2024-12-19
@@ -286,6 +353,99 @@
 ## [Unreleased]
 
 ### Added
+- **Complete Home Page Redesign**: Major visual overhaul to match modern design aesthetic
+  - **New Design System**: Implemented CSS custom properties with cyan/blue primary colors (#0df2f2)
+  - **Modern Header**: Added sticky header with navigation, logo, and registration buttons
+  - **Hero Section**: Large hero area with compelling headline and call-to-action button
+  - **Feature Cards**: Three-column feature showcase with icons and descriptions
+  - **Enhanced Match Analysis**: Redesigned analysis section with better visual hierarchy
+  - **Registration CTA**: Added prominent registration call-to-action section
+  - **Material Icons**: Integrated Material Symbols for enhanced visual elements
+  - **Space Grotesk Font**: Updated typography to modern, professional font family
+  - **Rune Pattern Background**: Subtle background pattern for visual interest
+  - **Glowing Button Effects**: Enhanced button interactions with glow effects and animations
+  - **Responsive Design**: Improved mobile and desktop layouts with better spacing
+  - **Smooth Scrolling**: Added smooth scroll functionality to analysis section
+  - **Enhanced Visual Feedback**: Better hover states, transitions, and animations throughout
+- **Dota 2 Background Image**: Added authentic Dota 2 background from Steam CDN
+  - **Background Integration**: Seamlessly integrated with existing design system
+  - **Readability Enhancement**: Added dark overlay to ensure text remains readable
+  - **Responsive Design**: Background scales properly on all device sizes
+  - **Performance Optimized**: Uses Steam's CDN for fast loading and reliability
+- **Glass-Morphism Component Styling**: Enhanced all major components with sophisticated gradient backgrounds
+  - **Gradient Backgrounds**: Applied linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%) to all cards
+  - **Enhanced Shadows**: Added 0px 0px 50px #000 box-shadow for depth and drama
+  - **Component Coverage**: Applied to Key Features, Match Analysis, Recent Reports, Registration CTA, and Mobile Menu
+  - **Visual Consistency**: All components now have unified, premium appearance
+  - **Modern Aesthetics**: Glass-morphism effect creates sophisticated, gaming-focused design
+- **Accent Color Update**: Changed primary accent color from gold to warm orange (#cf5a2c)
+  - **Color Consistency**: Updated CSS variables in both app.vue and main.css
+  - **Header Branding**: "Replay Rune" text now uses the new accent color
+  - **Interactive Elements**: All buttons and accents now use the warm orange color
+  - **Visual Harmony**: New color creates better contrast and modern gaming aesthetic
+- **Header Navigation Improvements**: Enhanced header functionality and styling
+  - **Clickable Logo**: Logo and "Replay Rune" text now link to home page
+  - **Hover Effects**: Added opacity transition on logo hover for better UX
+  - **Brand Color**: Header text uses the new accent color for brand consistency
+- **Overlay Positioning Fix**: Corrected background overlay positioning and opacity
+  - **Full Width Coverage**: Changed from absolute to fixed positioning for edge-to-edge coverage
+  - **Opacity Adjustment**: Reduced overlay opacity from 40% to 30% for better readability
+  - **Z-index Management**: Proper layering ensures overlay works correctly across all screen sizes
+- **Component Background Consistency**: Applied gradient backgrounds to all interactive elements
+  - **Input Fields**: Match ID input now uses the same gradient background as other components
+  - **Hero Selection**: All hero selection buttons use consistent gradient styling
+  - **Role Selection**: Role buttons now match the overall design aesthetic
+  - **Visual Unity**: All form elements and interactive components now have cohesive appearance
+  - **Gradient Standardization**: Consistent use of linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%) across all components
+- **Analysis Page Separation**: Moved match analysis functionality to dedicated page
+  - **New Analysis Page**: Created `/analysis` route with complete match analysis functionality
+  - **Home Page Cleanup**: Removed analysis section from home page, replaced with CTA
+  - **Navigation Update**: Added "Analysis" link to navigation, removed "Home" link
+  - **Code Organization**: Separated concerns for better maintainability and user experience
+  - **Streamlined Home**: Home page now focuses on features, recent reports, and analysis CTA
+- **Border and Outline Cleanup**: Removed unwanted white/blue outlines and borders
+  - **Default Browser Styles**: Eliminated browser default focus outlines and borders
+  - **Global Style Reset**: Added CSS reset to remove all default borders and outlines
+  - **Cleaner Appearance**: All elements now have clean, borderless appearance by default
+  - **Custom Border Control**: Only intentional borders (using our design system) are now visible
+  - **Component Border Removal**: Removed borders from key features, CTA sections, recent reports, and analysis elements
+  - **Header Border Removal**: Cleaned up header borders for a more seamless appearance
+  - **Form Element Borders**: Removed borders from input fields, buttons, and selection elements
+  - **Status Message Borders**: Cleaned up borders from error, success, and warning messages
+- **History Page Styling**: Completely restyled history page to match home and analysis pages
+  - **Consistent Header**: Added same navigation header with mobile menu support
+  - **Background Integration**: Applied Dota 2 background image and overlay system
+  - **Gradient Styling**: Used same gradient backgrounds and box-shadows for all elements
+  - **Enhanced Layout**: Improved report cards with better spacing, typography, and visual hierarchy
+  - **Mobile Responsiveness**: Added mobile menu and responsive design elements
+  - **Visual Consistency**: All pages now share the same beautiful, cohesive design language
+- **Subscribe Page Styling**: Completely restyled subscribe page to match other pages
+  - **Consistent Header**: Added same navigation header with mobile menu support
+  - **Background Integration**: Applied Dota 2 background image and overlay system
+  - **Gradient Styling**: Used same gradient backgrounds and box-shadows for all elements
+  - **Color System Fix**: Replaced all old color classes with new CSS variable system
+  - **Enhanced Layout**: Improved pricing cards, feature comparison, and FAQ sections
+  - **Mobile Responsiveness**: Added mobile menu and responsive design elements
+  - **Complete Design Unity**: All four main pages now share identical design language
+
+### Changed
+- **Visual Theme**: Completely updated color scheme from dark blue to modern cyan/blue palette
+- **Layout Structure**: Reorganized content into logical sections with better visual flow
+- **Component Styling**: Updated all form elements, buttons, and cards to match new design
+- **Typography**: Changed from Inter to Space Grotesk for more modern appearance
+- **Color Variables**: Replaced Tailwind custom colors with CSS custom properties for consistency
+- **Navigation System**: Replaced old app-level navigation with page-specific modern navigation
+  - **Removed Old Header**: Eliminated the old navigation bar from app.vue
+  - **New Page Navigation**: Added modern header with logo, navigation links, and mobile menu
+  - **Navigation Links**: Updated to include Home, History, and Subscribe pages
+  - **Mobile Responsiveness**: Added mobile menu with hamburger button and overlay
+
+### Technical
+- **CSS Custom Properties**: Implemented comprehensive CSS variable system for consistent theming
+- **Component Integration**: Maintained all existing Vue.js functionality while updating visual design
+- **Font Integration**: Added Google Fonts for Material Symbols and Space Grotesk
+- **Animation System**: Enhanced transitions and hover effects for better user experience
+
 - **End-of-Game Rules Support**: Implemented support for rules that evaluate at the end of the game instead of at specific time intervals
   - Added `endOfGame` property to V3Rule interface
   - Updated ruleset.v3.jsonc to include end-of-game rules

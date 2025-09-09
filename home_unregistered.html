@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Replay Rune</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+      :root {
+        --primary-color: #cf5a2c;
+        --secondary-color: #8a2be2;
+        --accent-color: #ffd700;
+        --background-color: #1a1a2e;
+        --card-background: #2a2a4a;
+        --text-primary: #e0e0e0;
+        --text-secondary: #b0b0b0;
+        --border-glow: #0df2f2;
+      }
+      body {
+        font-family: "Space Grotesk", sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-primary);
+      }
+      .glowing-button {
+        box-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color);
+        transition: box-shadow 0.3s ease-in-out, transform 0.2s ease-in-out;
+      }
+      .glowing-button:hover {
+        box-shadow: 0 0 15px var(--primary-color), 0 0 25px var(--primary-color);
+        transform: translateY(-2px);
+      }
+      .rune-pattern {
+        background-image: radial-gradient(
+            circle at 10% 20%,
+            rgba(13, 242, 242, 0.05) 0%,
+            transparent 20%
+          ),
+          radial-gradient(
+            circle at 80% 90%,
+            rgba(138, 43, 226, 0.05) 0%,
+            transparent 20%
+          );
+        background-position: 0 0, 50px 50px;
+        background-size: 100px 100px;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <div
+      class="relative flex size-full min-h-screen flex-col bg-[var(--background-color)] rune-pattern dark group/design-root overflow-x-hidden"
+    >
+      <div class="layout-container flex h-full grow flex-col">
+        <header
+          class="bg-[var(--card-background)]/80 backdrop-blur-sm sticky top-0 z-50 shadow-lg py-4 px-6 md:px-10 flex justify-between items-center border-b border-[var(--primary-color)]/20"
+        >
+          <div class="flex items-center gap-4 text-[var(--text-primary)]">
+            <svg
+              class="text-[var(--primary-color)]"
+              fill="none"
+              height="24"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 2L2 7V17L12 22L22 17V7L12 2ZM12 4.23L19.5 8.5V15.5L12 19.77L4.5 15.5V8.5L12 4.23Z"
+                fill="currentColor"
+              ></path>
+              <path
+                d="M4.5 8.5L12 12.5L19.5 8.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+              ></path>
+              <path
+                d="M12 22V12.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+              ></path>
+            </svg>
+            <h1 class="text-xl font-bold">Replay Rune</h1>
+          </div>
+          <nav class="hidden md:flex items-center gap-6">
+            <a
+              class="font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200 px-3 py-2 rounded-md"
+              href="#"
+              >Home</a
+            >
+            <a
+              class="font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200 px-3 py-2 rounded-md"
+              href="#"
+              >Features</a
+            >
+          </nav>
+          <div class="flex items-center gap-4">
+            <a
+              class="hidden md:block text-[var(--text-primary)] font-medium hover:text-[var(--primary-color)] transition-colors duration-200 px-3 py-2"
+              href="#"
+              >Login</a
+            >
+            <a
+              class="hidden md:flex bg-[var(--primary-color)] text-[var(--background-color)] font-bold py-2 px-5 rounded-md hover:shadow-[0_0_15px_rgba(13,242,242,0.7)] transition-all duration-300 ease-in-out transform hover:-translate-y-0.5"
+              href="#"
+            >
+              Register
+            </a>
+            <button
+              class="md:hidden flex items-center justify-center size-10 rounded-full bg-[var(--card-background)] text-[var(--text-primary)]"
+            >
+              <span class="material-symbols-outlined">menu</span>
+            </button>
+          </div>
+        </header>
+        <main class="container mx-auto px-4 py-8 lg:px-8">
+          <div class="mb-12 text-center pt-8 md:pt-16">
+            <h2
+              class="text-4xl lg:text-5xl font-bold text-[var(--text-primary)] mb-4"
+            >
+              Unlock Your Dota 2 Potential
+            </h2>
+            <p class="text-[var(--text-secondary)] max-w-3xl mx-auto text-lg">
+              Analyze your replays, gain deep insights, and climb the ranks.
+              Replay Rune is your personal Dota 2 coach.
+            </p>
+            <div class="mt-8">
+              <button
+                class="bg-[var(--accent-color)] text-black font-bold py-3 px-8 rounded-md text-lg glowing-button hover:shadow-[0_0_20px_rgba(255,215,0,0.6)] transition-all duration-300 ease-in-out transform hover:-translate-y-1"
+                href="/analysis"
+              >
+                Get Started: Analyze Your First Replay
+              </button>
+            </div>
+          </div>
+          <section class="mb-12 py-12">
+            <h3
+              class="text-2xl lg:text-3xl font-semibold text-[var(--text-primary)] mb-8 text-center pb-2 flex items-center justify-center gap-3"
+            >
+              <span
+                class="material-symbols-outlined text-[var(--primary-color)]"
+                >auto_awesome</span
+              >
+              Key Features
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div
+                class="bg-[var(--card-background)] rounded-lg p-6 shadow-lg border border-transparent hover:border-[var(--border-glow)] transition-all duration-300 ease-in-out group flex flex-col items-center text-center"
+              >
+                <div class="p-4 rounded-full bg-[var(--primary-color)]/10 mb-4">
+                  <span
+                    class="material-symbols-outlined text-4xl text-[var(--primary-color)]"
+                    >insights</span
+                  >
+                </div>
+                <h4 class="text-xl font-bold text-[var(--text-primary)] mb-2">
+                  In-Depth Analysis
+                </h4>
+                <p class="text-sm text-[var(--text-secondary)]">
+                  Go beyond post-game stats. We break down teamfights, farming
+                  patterns, and objective control to show you what truly
+                  mattered.
+                </p>
+              </div>
+              <div
+                class="bg-[var(--card-background)] rounded-lg p-6 shadow-lg border border-transparent hover:border-[var(--border-glow)] transition-all duration-300 ease-in-out group flex flex-col items-center text-center"
+              >
+                <div
+                  class="p-4 rounded-full bg-[var(--secondary-color)]/10 mb-4"
+                >
+                  <span
+                    class="material-symbols-outlined text-4xl text-[var(--secondary-color)]"
+                    >timeline</span
+                  >
+                </div>
+                <h4 class="text-xl font-bold text-[var(--text-primary)] mb-2">
+                  Performance Tracking
+                </h4>
+                <p class="text-sm text-[var(--text-secondary)]">
+                  Track your progress over time. Identify your strengths,
+                  weaknesses, and hero-specific trends with our personalized
+                  dashboard.
+                </p>
+              </div>
+              <div
+                class="bg-[var(--card-background)] rounded-lg p-6 shadow-lg border border-transparent hover:border-[var(--border-glow)] transition-all duration-300 ease-in-out group flex flex-col items-center text-center"
+              >
+                <div class="p-4 rounded-full bg-[var(--accent-color)]/10 mb-4">
+                  <span
+                    class="material-symbols-outlined text-4xl text-[var(--accent-color)]"
+                    >groups</span
+                  >
+                </div>
+                <h4 class="text-xl font-bold text-[var(--text-primary)] mb-2">
+                  Team Sync
+                </h4>
+                <p class="text-sm text-[var(--text-secondary)]">
+                  Analyze games with your team. Share reports, compare stats,
+                  and develop winning strategies together for your next match.
+                </p>
+              </div>
+            </div>
+          </section>
+          <section class="mb-12">
+            <div
+              class="bg-gradient-to-br from-[var(--card-background)] to-[var(--background-color)] border border-[var(--primary-color)]/50 rounded-lg p-8 shadow-xl my-12 flex flex-col md:flex-row items-center justify-between gap-8"
+            >
+              <div class="text-center md:text-left">
+                <h3 class="text-3xl font-bold text-[var(--text-primary)] mb-2">
+                  Ready to Join?
+                </h3>
+                <p class="text-[var(--text-secondary)] max-w-2xl">
+                  Create an account to save your replay history, track your
+                  long-term performance, and unlock exclusive features.
+                </p>
+              </div>
+              <div class="flex-shrink-0">
+                <a
+                  class="bg-[var(--primary-color)] text-[var(--background-color)] font-bold py-3 px-8 rounded-md text-lg glowing-button hover:shadow-[0_0_20px_rgba(13,242,242,0.6)] transition-all duration-300 ease-in-out transform hover:-translate-y-1"
+                  href="#"
+                >
+                  Register Now
+                </a>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+    <div
+      class="fixed inset-0 bg-black/50 z-40 hidden"
+      id="mobile-menu-overlay"
+    ></div>
+    <div
+      class="fixed top-0 right-0 h-full w-64 bg-[var(--card-background)] z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden"
+      id="mobile-menu"
+    >
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-xl font-bold text-[var(--text-primary)]">Menu</h2>
+          <button id="close-menu-btn">
+            <span class="material-symbols-outlined text-2xl">close</span>
+          </button>
+        </div>
+        <nav class="flex flex-col gap-4">
+          <a
+            class="font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200 py-2"
+            href="#"
+            >Home</a
+          >
+          <a
+            class="font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200 py-2"
+            href="#"
+            >Features</a
+          >
+          <hr class="border-[var(--text-secondary)]/20 my-2" />
+          <a
+            class="font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200 py-2"
+            href="#"
+            >Login</a
+          >
+          <a
+            class="mt-2 bg-[var(--primary-color)] text-center text-[var(--background-color)] font-bold py-2 px-5 rounded-md glowing-button"
+            href="#"
+          >
+            Register
+          </a>
+        </nav>
+      </div>
+    </div>
+    <script>
+      const mobileMenu = document.getElementById("mobile-menu");
+      const mobileMenuOverlay = document.getElementById("mobile-menu-overlay");
+      const openMenuBtn = document.querySelector("button.md\\:hidden");
+      const closeMenuBtn = document.getElementById("close-menu-btn");
+      const toggleMenu = () => {
+        mobileMenu.classList.toggle("translate-x-full");
+        mobileMenuOverlay.classList.toggle("hidden");
+      };
+      openMenuBtn.addEventListener("click", toggleMenu);
+      closeMenuBtn.addEventListener("click", toggleMenu);
+      mobileMenuOverlay.addEventListener("click", toggleMenu);
+    </script>
+  </body>
+</html>

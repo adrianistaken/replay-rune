@@ -509,14 +509,14 @@
             "description": "Your kill contribution by 20 minutes is below average. Focus on engaging fights and contributing to your team's success."
         },
         {
-            "id": "p4_low_ability_at_20",
+            "id": "p4_low_ability_at_10",
             "roles": ["POSITION_4"],
-            "atMin": 20,
-            "when": { "operator": "delta_less_than", "kpi": "abilityCasts@20", "value": -0.25 },
+            "atMin": 10,
+            "when": { "operator": "delta_less_than", "kpi": "abilityCasts@10", "value": -0.25 },
             "severity": 0.65,
             "type": "fix",
             "category": "TEAMPLAY",
-            "header": "Low spell usage by 20 minutes",
+            "header": "Low spell usage by 10 minutes",
             "description": "You're not using your spells as effectively as typical for this hero. Focus on better spell usage and decision making."
         },
         {
