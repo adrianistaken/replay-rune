@@ -131,6 +131,12 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div v-if="matchHeroes.length > 0 && !error && isMatchParsed"
+                            class="mt-4 p-4 bg-[var(--accent-success)]/10 rounded-md">
+                            <p class="text-[var(--accent-success)]">✅ Match loaded successfully! Select your hero and
+                                role below.</p>
+                        </div>
                     </div>
 
                     <!-- Hero Selection -->
@@ -146,26 +152,25 @@
                         </div>
 
                         <!-- Hero Layout: Horizontal 5v5 with Responsive Design -->
-                        <!-- Mobile: Vertical layout -->
-                        <div class="md:hidden space-y-4">
+                        <div class="space-y-4">
                             <!-- Radiant Team (Top) -->
                             <div>
                                 <h5 class="text-sm font-medium text-[var(--team-radiant)] mb-3 text-center">Radiant</h5>
-                                <div class="flex justify-center gap-3">
+                                <div class="flex justify-center gap-3 md:gap-4">
                                     <button v-for="hero in radiantHeroes" :key="hero.id" type="button"
                                         @click="selectedHero = hero.id"
-                                        class="flex flex-col items-center p-3 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] w-24"
+                                        class="flex flex-col items-center p-3 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] w-20 md:w-24"
                                         :class="selectedHero === hero.id
                                             ? 'bg-[var(--primary-color)]/10 text-[var(--primary-color)]'
                                             : 'text-[var(--text-primary)]'"
                                         :style="selectedHero === hero.id
                                             ? 'background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%);'
                                             : 'background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%);'">
-                                        <HeroImage :hero-id="hero.id" :width="80" :height="80" class="rounded mb-2"
+                                        <HeroImage :hero-id="hero.id" :width="64" :height="64" class="rounded mb-2"
                                             :alt="hero.name" />
                                         <div class="text-center w-full">
-                                            <div class="text-sm font-medium">{{ hero.name }}</div>
-                                            <div class="text-xs text-[var(--text-secondary)]">{{ getPositionDisplayName(hero.position) }}
+                                            <div class="text-sm font-medium truncate">{{ hero.name }}</div>
+                                            <div class="text-xs text-[var(--text-secondary)]">Pos {{ hero.position }}
                                             </div>
                                         </div>
                                     </button>
@@ -183,21 +188,21 @@
                             <!-- Dire Team (Bottom) -->
                             <div>
                                 <h5 class="text-sm font-medium text-[var(--team-dire)] mb-3 text-center">Dire</h5>
-                                <div class="flex justify-center gap-3">
+                                <div class="flex justify-center gap-3 md:gap-4">
                                     <button v-for="hero in direHeroes" :key="hero.id" type="button"
                                         @click="selectedHero = hero.id"
-                                        class="flex flex-col items-center p-3 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] w-24"
+                                        class="flex flex-col items-center p-3 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] w-20 md:w-24"
                                         :class="selectedHero === hero.id
                                             ? 'bg-[var(--primary-color)]/10 text-[var(--primary-color)]'
                                             : 'text-[var(--text-primary)]'"
                                         :style="selectedHero === hero.id
                                             ? 'background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%);'
                                             : 'background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%);'">
-                                        <HeroImage :hero-id="hero.id" :width="80" :height="80" class="rounded mb-2"
+                                        <HeroImage :hero-id="hero.id" :width="64" :height="64" class="rounded mb-2"
                                             :alt="hero.name" />
                                         <div class="text-center w-full">
-                                            <div class="text-sm font-medium">{{ hero.name }}</div>
-                                            <div class="text-xs text-[var(--text-secondary)]">{{ getPositionDisplayName(hero.position) }}
+                                            <div class="text-sm font-medium truncate">{{ hero.name }}</div>
+                                            <div class="text-xs text-[var(--text-secondary)]">Pos {{ hero.position }}
                                             </div>
                                         </div>
                                     </button>
@@ -205,83 +210,42 @@
                             </div>
                         </div>
 
-                        <!-- Desktop: Horizontal layout -->
-                        <div class="hidden md:block">
-                            <div class="flex items-center justify-between gap-4">
-                                <!-- Radiant Team (Left) -->
-                                <div class="flex-1">
-                                    <h5 class="text-sm font-medium text-[var(--team-radiant)] mb-3 text-center">Radiant</h5>
-                                    <div class="flex justify-center gap-2">
-                                        <button v-for="hero in radiantHeroes" :key="hero.id" type="button"
-                                            @click="selectedHero = hero.id"
-                                            class="flex flex-col items-center p-2 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] w-20"
-                                            :class="selectedHero === hero.id
-                                                ? 'bg-[var(--primary-color)]/10 text-[var(--primary-color)]'
-                                                : 'text-[var(--text-primary)]'"
-                                            :style="selectedHero === hero.id
-                                                ? 'background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%);'
-                                                : 'background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%);'">
-                                            <HeroImage :hero-id="hero.id" :width="64" :height="64" class="rounded mb-1"
-                                                :alt="hero.name" />
-                                            <div class="text-center w-full">
-                                                <div class="text-xs font-medium">{{ hero.name }}</div>
-                                                <div class="text-xs text-[var(--text-secondary)]">{{ getPositionDisplayName(hero.position) }}
-                                                </div>
-                                            </div>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- VS Separator -->
-                                <div class="flex-shrink-0">
-                                    <div class="text-lg font-bold text-[var(--text-secondary)] px-3 py-1 rounded-lg"
-                                        style="background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%);">
-                                        VS
-                                    </div>
-                                </div>
-
-                                <!-- Dire Team (Right) -->
-                                <div class="flex-1">
-                                    <h5 class="text-sm font-medium text-[var(--team-dire)] mb-3 text-center">Dire</h5>
-                                    <div class="flex justify-center gap-2">
-                                        <button v-for="hero in direHeroes" :key="hero.id" type="button"
-                                            @click="selectedHero = hero.id"
-                                            class="flex flex-col items-center p-2 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] w-20"
-                                            :class="selectedHero === hero.id
-                                                ? 'bg-[var(--primary-color)]/10 text-[var(--primary-color)]'
-                                                : 'text-[var(--text-primary)]'"
-                                            :style="selectedHero === hero.id
-                                                ? 'background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%);'
-                                                : 'background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%);'">
-                                            <HeroImage :hero-id="hero.id" :width="64" :height="64" class="rounded mb-1"
-                                                :alt="hero.name" />
-                                            <div class="text-center w-full">
-                                                <div class="text-xs font-medium">{{ hero.name }}</div>
-                                                <div class="text-xs text-[var(--text-secondary)]">{{ getPositionDisplayName(hero.position) }}
-                                                </div>
-                                            </div>
-                                        </button>
-                                    </div>
-                                </div>
+                        <!-- Role Selection -->
+                        <div class="mt-6">
+                            <label class="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                                Your Role
+                            </label>
+                            <div class="grid grid-cols-5 gap-2">
+                                <button v-for="role in roles" :key="role.value" type="button"
+                                    @click="selectedRole = role.value"
+                                    class="p-3 text-center rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]"
+                                    :class="selectedRole === role.value
+                                        ? 'bg-[var(--primary-color)]/10 text-[var(--primary-color)]'
+                                        : 'text-[var(--text-primary)]'"
+                                    :style="selectedRole === role.value
+                                        ? 'background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%);'
+                                        : 'background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%);'">
+                                    <div class="font-semibold">{{ role.label }}</div>
+                                    <div class="text-xs text-[var(--text-secondary)]">{{ role.description }}</div>
+                                </button>
                             </div>
                         </div>
 
                         <!-- Analyze Button -->
                         <button @click="analyzeMatch"
-                            :disabled="isLoading || !matchId || matchHeroes.length === 0 || !selectedHero || !isMatchParsed"
+                            :disabled="isLoading || !matchId || matchHeroes.length === 0 || !selectedRole || !selectedHero || !isMatchParsed"
                             class="w-full mt-6 bg-[var(--accent-color)] text-black py-3 px-4 rounded-md font-medium hover:bg-[var(--accent-color)]/80 focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] focus:ring-offset-2 focus:ring-offset-[var(--card-background)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 glowing-button">
                             <span v-if="isLoading">Analyzing...</span>
                             <span v-else-if="!matchId">Enter Match ID</span>
                             <span v-else-if="matchHeroes.length === 0">Load Match First</span>
                             <span v-else-if="!selectedHero">Select Your Hero</span>
+                            <span v-else-if="!selectedRole">Select Your Role</span>
                             <span v-else-if="!isMatchParsed">Parse Match First, Then Analyze</span>
                             <span v-else>Analyze Match</span>
                         </button>
-                        
                     </div>
                 </div>
             </section>
-
         </main>
 
         <!-- Mobile Menu Overlay and Menu -->
@@ -326,6 +290,12 @@
 import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { useHeroes } from '../composables/useHeroes'
 
+interface Role {
+    value: string
+    label: string
+    description: string
+}
+
 interface Hero {
     id: number
     name: string
@@ -334,7 +304,16 @@ interface Hero {
     position: string
 }
 
+const roles: Role[] = [
+    { value: 'pos1', label: 'Pos 1', description: 'Carry' },
+    { value: 'pos2', label: 'Pos 2', description: 'Mid' },
+    { value: 'pos3', label: 'Pos 3', description: 'Offlane' },
+    { value: 'pos4', label: 'Pos 4', description: 'Soft Support' },
+    { value: 'pos5', label: 'Pos 5', description: 'Hard Support' }
+]
+
 const matchId = ref('')
+const selectedRole = ref('')
 const selectedHero = ref<number | null>(null)
 const isLoading = ref(false)
 const error = ref('')
@@ -363,25 +342,12 @@ const pollingMessages = [
 ]
 let messageIndex = 0
 
-// Position mapping from API format to display names
-const positionMap: { [key: string]: string } = {
-    'POSITION_1': 'Carry',
-    'POSITION_2': 'Mid',
-    'POSITION_3': 'Offlane',
-    'POSITION_4': 'Soft Support',
-    'POSITION_5': 'Hard Support'
-}
-
-const getPositionDisplayName = (position: string): string => {
-    return positionMap[position] || position
-}
-
 const startPollingForParsing = async () => {
     if (isPollingForParsing.value) return
 
     isPollingForParsing.value = true
     messageIndex = 0
-    currentPollingMessage.value = pollingMessages[0] || 'Checking if match is parsed...'
+    currentPollingMessage.value = pollingMessages[0]
 
     // Start polling every 30 seconds
     pollingInterval.value = setInterval(async () => {
@@ -419,7 +385,7 @@ const startPollingForParsing = async () => {
 
             // Update rotating message
             messageIndex = (messageIndex + 1) % pollingMessages.length
-            currentPollingMessage.value = pollingMessages[messageIndex] || 'Checking if match is parsed...'
+            currentPollingMessage.value = pollingMessages[messageIndex]
 
         } catch (e) {
             console.error('Polling error:', e)
@@ -475,24 +441,14 @@ onUnmounted(() => {
     stopPollingForParsing()
 })
 
-// Helper function to get position number from position string
-const getPositionNumber = (position: string): number => {
-    // Handle different position formats: "POSITION_1", "pos1", "1", etc.
-    const match = position.match(/(\d+)/)
-    if (match) {
-        return parseInt(match[1] || '999')
-    }
-    // Fallback for unknown positions
-    return 999
-}
-
 // Computed properties for Radiant and Dire heroes, sorted by position
 const radiantHeroes = computed(() =>
     matchHeroes.value
         .filter(hero => hero.side === 'Radiant')
         .sort((a, b) => {
-            const posA = getPositionNumber(a.position)
-            const posB = getPositionNumber(b.position)
+            // Try to sort by position (1-5), fallback to original order if position is not available
+            const posA = parseInt(a.position) || 999
+            const posB = parseInt(b.position) || 999
             return posA - posB
         })
 )
@@ -501,8 +457,9 @@ const direHeroes = computed(() =>
     matchHeroes.value
         .filter(hero => hero.side === 'Dire')
         .sort((a, b) => {
-            const posA = getPositionNumber(a.position)
-            const posB = getPositionNumber(b.position)
+            // Try to sort by position (1-5), fallback to original order if position is not available
+            const posA = parseInt(a.position) || 999
+            const posB = parseInt(b.position) || 999
             return posA - posB
         })
 )
@@ -541,9 +498,11 @@ const fetchMatchData = async () => {
 
         // Extract heroes from the STRATZ match data
         const heroes: Hero[] = []
-        data.players.forEach((player: any) => {
+
+        data.players.forEach((player: any, index: number) => {
+            // Get hero data from our normalized hero data
             const heroData = getHero(player.hero.id)
-            const heroName: string = heroData?.localized_name || player.hero.displayName || `Hero ${player.hero.id}`
+            const heroName = heroData?.localized_name || player.hero.displayName || `Hero ${player.hero.id}`
             const side = player.isRadiant ? 'Radiant' : 'Dire'
             const position = (player.position as string) || 'Unknown'
 
@@ -557,26 +516,27 @@ const fetchMatchData = async () => {
         })
 
         matchHeroes.value = heroes
-        error.value = ''
+        selectedHero.value = null
+        selectedRole.value = ''
 
-    } catch (e) {
-        console.error('Error fetching match data:', e)
-        error.value = e instanceof Error ? e.message : 'Failed to load match data'
+    } catch (e: any) {
+        error.value = e instanceof Error ? e.message : 'Failed to fetch match data. Please check the match ID and try again.'
+        console.error('Fetch error:', e)
     } finally {
         isLoading.value = false
     }
 }
 
 const resetForm = () => {
-    selectedHero.value = null
-    matchHeroes.value = []
     matchData.value = null
+    matchHeroes.value = []
+    selectedHero.value = null
+    selectedRole.value = ''
     error.value = ''
-    stopPollingForParsing()
 }
 
 const analyzeMatch = async () => {
-    if (!matchId.value || !selectedHero.value) {
+    if (!matchId.value || !selectedRole.value || !selectedHero.value) {
         return
     }
 
@@ -584,22 +544,14 @@ const analyzeMatch = async () => {
     error.value = ''
 
     try {
-        // Find the selected hero to get their position
-        const selectedHeroData = matchHeroes.value.find(hero => hero.id === selectedHero.value)
-        if (!selectedHeroData) {
-            throw new Error('Selected hero not found')
-        }
+        // STRATZ data is already parsed, no need to check parsing status
+        const url = `/report/${matchId.value}/${selectedRole.value}/${selectedHero.value}`
 
-        // Convert position to the format expected by the report page
-        const positionNumber = getPositionNumber(selectedHeroData.position)
-        const roleValue = `pos${positionNumber}`
-
-        // Navigate to the report page with the selected parameters
-        const reportUrl = `/report/${matchId.value}/${roleValue}/${selectedHero.value}`
-        window.location.href = reportUrl
+        // Navigate to report page with match ID, role, and hero
+        window.location.href = url
     } catch (e) {
-        console.error('Error analyzing match:', e)
-        error.value = e instanceof Error ? e.message : 'Failed to analyze match'
+        error.value = 'Failed to analyze match. Please try again.'
+        console.error('Analysis error:', e)
     } finally {
         isLoading.value = false
     }

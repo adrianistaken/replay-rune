@@ -52,6 +52,13 @@ export class StratzService {
                             parsedDateTime
                             statsDateTime
                             leagueId
+                            gameVersionId
+                            regionId
+                            sequenceNum
+                            rank
+                            bracket
+                            analysisOutcome
+                            predictedOutcomeWeight
                             players {
                                 steamAccount {
                                     id
@@ -96,6 +103,7 @@ export class StratzService {
                                 towerDamage
                                 heroDamage
                                 playerSlot
+                                isRadiant
                                 stats {
                                     impPerMinute
                                     goldPerMinute
@@ -140,23 +148,28 @@ export class StratzService {
                                     goldLost
                                 }
                                 lane
-                                isRadiant
                             }
                         }
                     }
                 `,
-                variables: { matchId: parseInt(matchId) }
+                variables: {
+                    matchId: parseInt(matchId)
+                }
             })
         })
 
         if (!response.ok) {
-            throw new Error(`STRATZ API request failed: ${response.status}`)
+            throw new Error(`HTTP error! status: ${response.status}`)
         }
 
         const data = await response.json()
 
         if (data.errors) {
-            throw new Error(`STRATZ API errors: ${JSON.stringify(data.errors)}`)
+            throw new Error(`GraphQL errors: ${JSON.stringify(data.errors)}`)
+        }
+
+        if (!data.data || !data.data.match) {
+            throw new Error('Match not found')
         }
 
         // Log the STRATZ API response data
@@ -196,6 +209,8 @@ export class StratzService {
             match_minutes: Math.floor(match.durationSeconds / 60),
             win_minutes: 0, // Not applicable for end-of-match analysis
             minute_bucket: 'end',
+            // Add networth field
+            networth: player.networth,
             stratzData: {
                 imp: player.imp,
                 heroAverage: player.heroAverage || [],
@@ -207,7 +222,8 @@ export class StratzService {
                     lastHitsPerMinute: [],
                     campStack: [],
                     deniesPerMinute: [],
-                    tripsFountainPerMinute: []
+                    tripsFountainPerMinute: [],
+                    networthPerMinute: []
                 },
                 role: player.role,
                 roleBasic: player.roleBasic,
@@ -219,62 +235,43 @@ export class StratzService {
     }
 
     static computeKPIs(playerData: ComputedPlayerData): ComputedKPI[] {
-        const kpis: ComputedKPI[] = []
-
-        // Get hero average data for benchmarking
-        const heroAvg = playerData.stratzData?.heroAverage.find(avg =>
-            avg.time === Math.floor(playerData.match_minutes)
-        )
-
-        // GPM
-        const gpmMedian = heroAvg?.goldPerMinute || 540
-        kpis.push(this.createKPI('GPM', playerData.gpm, '', gpmMedian, this.calculatePercentile(playerData.gpm, gpmMedian)))
-
-        // XPM
-        const xpmMedian = heroAvg?.xp || 580
-        kpis.push(this.createKPI('XPM', playerData.xpm, '', xpmMedian, this.calculatePercentile(playerData.xpm, xpmMedian)))
-
-        // Hero damage per minute
-        const dpmMedian = heroAvg?.damage || 420
-        kpis.push(this.createKPI('Hero Damage/min', playerData.dpm, '', dpmMedian, this.calculatePercentile(playerData.dpm, dpmMedian)))
-
-        // Last hits per minute
-        const lhMedian = heroAvg?.cs || 52
-        kpis.push(this.createKPI('Last Hits/min', playerData.lh_10 / playerData.match_minutes, '', lhMedian, this.calculatePercentile(playerData.lh_10 / playerData.match_minutes, lhMedian)))
-
-        // Kill participation
-        kpis.push(this.createKPI('Kill Participation', playerData.kpct, '%', 50, this.calculatePercentile(playerData.kpct, 50)))
-
-        // Deaths per 10 minutes
-        kpis.push(this.createKPI('Deaths/10min', playerData.deaths_per10, '', 2.5, this.calculatePercentile(playerData.deaths_per10, 2.5)))
-
-        // IMP (Impact) - STRATZ-specific metric
-        kpis.push(this.createKPI('IMP', playerData.stratzData?.imp || 0, '', 1, this.calculatePercentile(playerData.stratzData?.imp || 0, 1)))
+        // This is a simplified version - in a real implementation,
+        // you'd calculate percentiles against a database of similar matches
+        const kpis: ComputedKPI[] = [
+            {
+                name: 'GPM',
+                value: playerData.gpm,
+                unit: 'gold/min',
+                percentile: 50, // Placeholder
+                median: 400, // Placeholder
+                rawValue: playerData.gpm
+            },
+            {
+                name: 'XPM',
+                value: playerData.xpm,
+                unit: 'xp/min',
+                percentile: 50, // Placeholder
+                median: 500, // Placeholder
+                rawValue: playerData.xpm
+            },
+            {
+                name: 'KDA',
+                value: playerData.kpct,
+                unit: '%',
+                percentile: 50, // Placeholder
+                median: 50, // Placeholder
+                rawValue: playerData.kpct
+            },
+            {
+                name: 'Net Worth',
+                value: playerData.networth || 0,
+                unit: 'gold',
+                percentile: 50, // Placeholder
+                median: 10000, // Placeholder
+                rawValue: playerData.networth || 0
+            }
+        ]
 
         return kpis
     }
-
-    private static createKPI(name: string, value: number, unit: string, median: number, percentile: number): ComputedKPI {
-        return {
-            name,
-            value: Math.round(value * 100) / 100,
-            unit,
-            percentile: Math.round(percentile),
-            median: Math.round(median * 100) / 100,
-            delta: Math.round((value - median) * 100) / 100,
-            rawValue: value
-        }
-    }
-
-    private static calculatePercentile(value: number, median: number): number {
-        // Simple percentile calculation based on deviation from median
-        const deviation = (value - median) / median
-        const percentile = 50 + (deviation * 25) // 25% per standard deviation
-        return Math.max(0, Math.min(100, percentile))
-    }
-
-    private static estimateFirstCoreItem(player: StratzPlayer, matchDuration: number): number {
-        // Simplified estimation - in a real implementation, you'd analyze item purchases
-        return matchDuration * 0.3 // Assume first core item around 30% of match duration
-    }
-} 
+}

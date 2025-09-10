@@ -54,9 +54,8 @@
                 <p class="text-[var(--text-secondary)] max-w-3xl mx-auto text-lg">Analyze your replays, gain deep
                     insights, and climb the ranks. Replay Rune is your personal Dota 2 coach.</p>
                 <div class="mt-8">
-                    <button @click="scrollToAnalysis"
-                        class="bg-[var(--accent-color)] text-black font-bold py-3 px-8 rounded-md text-lg glowing-button hover:shadow-[0_0_20px_rgba(255,215,0,0.6)] transition-all duration-300 ease-in-out transform hover:-translate-y-1"
-                        href="/analysis">
+                    <button @click="goToAnalysis"
+                        class="bg-[var(--accent-color)] text-black font-bold py-3 px-8 rounded-md text-lg glowing-button hover:shadow-[0_0_20px_rgba(255,215,0,0.6)] transition-all duration-300 ease-in-out transform hover:-translate-y-1">
                         Get Started: Analyze Your First Replay
                     </button>
                 </div>
@@ -134,8 +133,8 @@
                     Recent Reports
                 </h3>
                 <div class="space-y-3 relative">
-                    <!-- Visible Reports (first 2) -->
-                    <div v-for="report in recentReports.slice(0, 2)" :key="report.id"
+                    <!-- All Reports (no limit) -->
+                    <div v-for="report in recentReports" :key="report.id"
                         class="rounded-lg p-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 cursor-pointer"
                         style="background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%); box-shadow: 0px 0px 50px #000;">
                         <div class="flex justify-between items-start">
@@ -180,47 +179,6 @@
                                     </svg>
                                 </button>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Blurred Reports (if more than 2) -->
-                    <div v-if="recentReports.length > 2" class="relative">
-                        <div v-for="report in recentReports.slice(2)" :key="report.id"
-                            class="rounded-lg p-4 transition-all blur-sm opacity-50 pointer-events-none"
-                            style="background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%); box-shadow: 0px 0px 50px #000;">
-                            <div class="flex justify-between items-start">
-                                <div class="flex items-center space-x-3 flex-1">
-                                    <HeroImage :hero-id="report.heroId" :width="48" :height="48" class="rounded"
-                                        :alt="report.heroName" />
-                                    <div class="flex-1">
-                                        <div class="flex items-center space-x-2">
-                                            <div class="font-medium text-[var(--text-primary)]">
-                                                {{ report.heroName }} ({{ getRoleDisplayName(report.role)
-                                                }})
-                                            </div>
-                                            <span class="text-xs px-2 py-1 rounded-full"
-                                                :class="report.win === true ? 'bg-[var(--accent-success)]/10 text-[var(--accent-success)]' : 'bg-[var(--accent-error)]/10 text-[var(--accent-error)]'">
-                                                {{ report.win === true ? 'Victory' : 'Defeat' }}
-                                            </span>
-                                        </div>
-                                        <div class="text-sm text-[var(--text-secondary)]">
-                                            Match {{ report.matchId }} • {{ formatDate(report.timestamp) }}
-                                        </div>
-                                        <div class="text-sm text-[var(--text-primary)] mt-1">
-                                            {{ report.summary }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Subscribe Overlay -->
-                        <div
-                            class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent rounded-lg flex items-end justify-center pb-4">
-                            <NuxtLink to="/subscribe"
-                                class="bg-[var(--primary-color)] text-[var(--background-color)] px-6 py-3 rounded-lg font-semibold hover:bg-[var(--primary-color)]/80 transition-colors shadow-lg glowing-button">
-                                Subscribe to See All Reports
-                            </NuxtLink>
                         </div>
                     </div>
                 </div>
@@ -285,6 +243,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useHeroes } from '../composables/useHeroes'
 
 interface ReportSummary {
     id: string
@@ -298,9 +257,13 @@ interface ReportSummary {
 }
 
 const recentReports = ref<ReportSummary[]>([])
+const { loadHeroes } = useHeroes()
 
 // Load recent reports from localStorage
 onMounted(async () => {
+    // Ensure hero data is loaded so images resolve correctly on hard refresh
+    await loadHeroes()
+
     const stored = localStorage.getItem('replay-checker-history')
     if (stored) {
         try {
@@ -317,7 +280,7 @@ onMounted(async () => {
                 report.timestamp &&
                 typeof report.win === 'boolean'
             )
-            recentReports.value = validReports.slice(0, 5)
+            recentReports.value = validReports
         } catch (e) {
             console.error('Failed to load history:', e)
             // Clear corrupted history
@@ -325,6 +288,10 @@ onMounted(async () => {
         }
     }
 })
+
+const goToAnalysis = () => {
+    window.location.href = '/analysis'
+}
 
 const viewReport = (report: ReportSummary) => {
     window.location.href = `/report/${report.matchId}/${report.role}/${report.heroId}`
@@ -371,7 +338,7 @@ const deleteReport = (reportId: string) => {
             const history = JSON.parse(stored)
             const filtered = history.filter((r: any) => r && r.id !== reportId)
             localStorage.setItem('replay-checker-history', JSON.stringify(filtered))
-            recentReports.value = filtered.slice(0, 5)
+            recentReports.value = filtered
         }
     } catch (e) {
         console.error('Failed to delete report:', e)
@@ -381,31 +348,6 @@ const deleteReport = (reportId: string) => {
     }
 }
 
-const scrollToAnalysis = () => {
-    const element = document.getElementById('analysis-section')
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth' })
-    }
-}
-
-// Mobile menu functionality
-onMounted(() => {
-    const mobileMenu = document.getElementById('mobile-menu')
-    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay')
-    const openMenuBtn = document.querySelector('button.md\\:hidden')
-    const closeMenuBtn = document.getElementById('close-menu-btn')
-
-    if (mobileMenu && mobileMenuOverlay && openMenuBtn && closeMenuBtn) {
-        const toggleMenu = () => {
-            mobileMenu.classList.toggle('translate-x-full')
-            mobileMenuOverlay.classList.toggle('hidden')
-        }
-
-        openMenuBtn.addEventListener('click', toggleMenu)
-        closeMenuBtn.addEventListener('click', toggleMenu)
-        mobileMenuOverlay.addEventListener('click', toggleMenu)
-    }
-})
 </script>
 
 <style scoped>

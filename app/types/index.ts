@@ -26,13 +26,6 @@ export interface StratzMatch {
     parsedDateTime: number
     statsDateTime: number
     leagueId: number | null
-    league: StratzLeague | null
-    radiantTeamId: number | null
-    radiantTeam: StratzTeam | null
-    direTeamId: number | null
-    direTeam: StratzTeam | null
-    seriesId: number | null
-    series: StratzSeries | null
     gameVersionId: number
     regionId: number
     sequenceNum: number
@@ -41,46 +34,6 @@ export interface StratzMatch {
     analysisOutcome: string
     predictedOutcomeWeight: number
     players: StratzPlayer[]
-}
-
-export interface StratzLeague {
-    id: number
-    name: string
-    displayName: string
-    tier: string
-    region: string
-    url: string
-    description: string
-    isProCircuit: boolean
-    imageUri: string
-    color: string
-}
-
-export interface StratzTeam {
-    id: number
-    name: string
-    tag: string
-    dateCreated: number
-    isPro: boolean
-    countryCode: string
-    url: string
-    logo: string
-    baseUri: string
-    lastMatchDateTime: number
-    teamCaptainId: number
-    homeLeagueId: number
-    homeLeague: StratzLeague | null
-}
-
-export interface StratzSeries {
-    id: number
-    name: string
-    type: string
-    leagueId: number
-    league: StratzLeague | null
-    startDateTime: number
-    endDateTime: number
-    matches: StratzMatch[]
 }
 
 export interface StratzPlayer {
@@ -102,10 +55,10 @@ export interface StratzPlayer {
     towerDamage: number
     heroDamage: number
     playerSlot: number
+    isRadiant: boolean
     stats: StratzPlayerStats
     heroAverage: StratzHeroAverage[]
     lane: string
-    isRadiant: boolean
 }
 
 export interface StratzSteamAccount {
@@ -125,7 +78,7 @@ export interface StratzHero {
 }
 
 export interface StratzHeroRole {
-    roleId: string
+    roleId: number
     level: number
 }
 
@@ -135,13 +88,13 @@ export interface StratzHeroTalent {
 }
 
 export interface StratzHeroFacet {
-    abilityId: number | null
+    abilityId: number
     facetId: number
     slot: number
 }
 
 export interface StratzHeroStats {
-    team: boolean
+    team: number
     complexity: number
 }
 
@@ -190,7 +143,7 @@ export interface StratzHeroAverage {
     goldLost: number
 }
 
-// Computed KPI Data
+// Computed Data Types
 export interface ComputedKPI {
     name: string
     value: number
@@ -232,6 +185,9 @@ export interface ComputedPlayerData {
     win_minutes: number
     minute_bucket: string
 
+    // Add networth field
+    networth: number
+
     // Carry-specific KPIs
     early_deaths_0_10?: number
     early_deaths_0_15?: number
@@ -240,8 +196,6 @@ export interface ComputedPlayerData {
     denies_10?: number
     gpm_10?: number
     xpm_10?: number
-
-    // STRATZ-specific data
 
     // STRATZ-specific data
     stratzData?: {
@@ -279,150 +233,189 @@ export interface Win {
     title: string
     description: string
     dataComparison?: string
-    kpi: string
+    priority: number
+    category: string
     confidence?: number
 }
 
 export interface TimelineMarker {
-    label: string
     time: number
-    delta?: number
-    description: string
-    itemImg?: string
-    details?: string
-}
-
-export interface AnalysisReport {
-    id: string
-    matchId: string
-    heroName: string
-    heroId: number
-    heroImg?: string
-    role: string
-    summary: string
-    kpis: KPI[]
-    fixes: Fix[]
-    wins: Win[]
-    timeline: TimelineMarker[]
-    timestamp: number
-    matchDuration: number
-    radiantWin: boolean
-    playerSlot: number
-
-    // New hero average analysis fields
-    focusArea?: FocusArea
-    numbersThatMatter?: NumbersThatMatter[]
-    isCoreVersion?: boolean
-}
-
-export interface FocusArea {
-    id: string
     title: string
     description: string
-    severity: number
+    type: 'positive' | 'negative' | 'neutral'
     category: string
 }
 
-export interface NumbersThatMatter {
+// Rule Engine Types
+export interface V3Rule {
+    id: string
+    title: string
+    description: string
+    category: string
+    priority: number
+    when: V3RuleCondition
+    then: V3RuleAction
+    confidence?: number
+}
+
+export interface V3RuleCondition {
+    operator: string
     kpi: string
+    value: number
+    time?: number
+}
+
+export interface V3RuleAction {
+    type: 'fix' | 'win'
+    message: string
+    dataComparison?: string
+}
+
+// Hero Average Rule Engine Types
+export interface HeroAverageRule {
+    id: string
+    title: string
+    description: string
+    category: string
+    priority: number
+    when: HeroAverageRuleCondition
+    then: HeroAverageRuleAction
+    confidence?: number
+}
+
+export interface HeroAverageRuleCondition {
+    operator: string
+    kpi: string
+    value: number
+    time?: number
+}
+
+export interface HeroAverageRuleAction {
+    type: 'fix' | 'win'
+    message: string
+    dataComparison?: string
+}
+
+// Analysis Result Types
+export interface AnalysisResult {
+    summary: string
+    fixes: Fix[]
+    wins: Win[]
+    timeline: TimelineMarker[]
+}
+
+// Utility Types
+export interface TimeRange {
+    start: number
+    end: number
+}
+
+export interface MetricValue {
+    time: number
+    value: number
+}
+
+export interface ComparisonData {
     playerValue: number
     averageValue: number
-    difference: number
-    percentageDiff: number
-    label: string
+    percentile: number
+    delta: number
 }
 
-export interface ReportSummary {
-    id: string
-    matchId: string
-    heroName: string
-    role: string
-    summary: string
-    timestamp: number
+// Rule Categories
+export const RULE_CATEGORIES = {
+    FARMING: 'farming',
+    TEAMFIGHT: 'teamfight',
+    MAP_CONTROL: 'map_control',
+    ITEMIZATION: 'itemization',
+    POSITIONING: 'positioning',
+    VISION: 'vision',
+    OBJECTIVES: 'objectives',
+    LATE_GAME: 'late_game',
+    EARLY_GAME: 'early_game',
+    MID_GAME: 'mid_game'
+} as const
+
+export type RuleCategory = typeof RULE_CATEGORIES[keyof typeof RULE_CATEGORIES]
+
+// KPI Names
+export const KPI_NAMES = {
+    GPM: 'gpm',
+    XPM: 'xpm',
+    KDA: 'kda',
+    NETWORTH: 'networth',
+    CS: 'cs',
+    XP: 'xp',
+    LEVEL: 'level',
+    DEATHS: 'deaths',
+    HERO_DAMAGE: 'heroDamage',
+    TOWER_DAMAGE: 'towerDamage',
+    CAMPS_STACKED: 'campsStacked',
+    ABILITY_CASTS: 'abilityCasts',
+    SUPPORT_GOLD: 'supportGold',
+    KILL_CONTRIBUTION: 'killContribution',
+    COURIER_KILLS: 'courierKills'
+} as const
+
+export type KPIName = typeof KPI_NAMES[keyof typeof KPI_NAMES]
+
+// Operator Types
+export const OPERATORS = {
+    GREATER_THAN: 'greater_than',
+    LESS_THAN: 'less_than',
+    EQUALS: 'equals',
+    DELTA_GREATER_THAN: 'delta_greater_than',
+    DELTA_LESS_THAN: 'delta_less_than',
+    PERCENTILE_GREATER_THAN: 'percentile_greater_than',
+    PERCENTILE_LESS_THAN: 'percentile_less_than'
+} as const
+
+export type Operator = typeof OPERATORS[keyof typeof OPERATORS]
+
+// Time-specific KPI parsing
+export interface TimeSpecificKPI {
+    metric: string
+    time: number
+    operator: string
+    value: number
 }
 
-// Hero Data Interfaces
-export interface HeroMedian {
-    hero_id: number
-    name: string
-    pos1?: HeroPositionData
-    pos2?: HeroPositionData
-    pos3?: HeroPositionData
-    pos4?: HeroPositionData
-    pos5?: HeroPositionData
+// Rule evaluation result
+export interface RuleEvaluationResult {
+    rule: V3Rule
+    passed: boolean
+    playerValue: number
+    expectedValue: number
+    delta: number
+    confidence: number
 }
 
-export interface HeroPositionData {
-    last_hits_10: number
-    gpm: number
-    xpm: number
-    kill_participation: number
-    hero_damage_per_min: number
-    tower_damage_per_min: number
-    deaths_per_10: number
-    first_core_item_timing: number
-    observers_placed: number
-    sentries_placed: number
-    stacks: number
+// Hero average data structure
+export interface HeroAverageData {
+    heroId: number
+    position: string
+    rank: number
+    data: StratzHeroAverage[]
 }
 
-// Rule Engine Interfaces
-export interface Rule {
-    id: string
-    condition: RuleCondition
-    fix: Fix
-    priority: number
-    roles: string[]
-}
+// Position mapping
+export const POSITION_MAP = {
+    'POSITION_1': 'Carry',
+    'POSITION_2': 'Mid',
+    'POSITION_3': 'Offlane',
+    'POSITION_4': 'Soft Support',
+    'POSITION_5': 'Hard Support'
+} as const
 
-export interface RuleCondition {
-    kpi: string
-    operator: 'lt' | 'lte' | 'eq' | 'gte' | 'gt'
-    value: number | string
-    percentile?: boolean
-}
+export type Position = keyof typeof POSITION_MAP
 
-// Hard-coded median values for now
-export interface MedianValues {
-    lh_10: number
-    gpm: number
-    xpm: number
-    kpct: number
-    dpm: number
-    tdpm: number
-    deaths_per10: number
-    first_core_s: number
-    obs: number
-    sentries: number
-    dewards: number
-    stacks: number
-    smokes_used: number
-    lane_nw_delta10: number
-}
+// Role mapping
+export const ROLE_MAP = {
+    'pos1': 'Carry',
+    'pos2': 'Mid',
+    'pos3': 'Offlane',
+    'pos4': 'Soft Support',
+    'pos5': 'Hard Support'
+} as const
 
-// Replay Parsing Interfaces
-export interface ParsingJobResponse {
-    job: {
-        jobId: number
-    }
-}
-
-export interface JobStatusResponse {
-    id: number
-    type: string
-    timestamp: string
-    attempts: number
-    data: {
-        match_id: number
-    }
-    next_attempt_time: string
-    priority: number
-    jobId: number
-}
-
-export interface MatchParsingStatus {
-    matchId: string
-    isParsing: boolean
-    jobId?: number
-    lastChecked: number
-} 
+export type Role = keyof typeof ROLE_MAP

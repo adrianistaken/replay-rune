@@ -318,9 +318,9 @@ onMounted(async () => {
         const playerData = StratzService.computePlayerData(matchData, parseInt(heroId), role)
         const kpis = StratzService.computeKPIs(playerData)
 
-        // Run analysis using the v3 rule engine
-        const { StratzRuleEngine } = await import('../../../../services/stratzRuleEngine')
-        const analysis = await StratzRuleEngine.analyzePlayer(playerData, kpis)
+        // Run analysis using the MVP rule engine
+        const { MVPRuleEngine } = await import('../../../../services/mvpRuleEngine')
+        const analysis = await MVPRuleEngine.analyze(matchData, player.playerSlot)
 
         // Create the report
         const reportId = `report-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
@@ -342,9 +342,23 @@ onMounted(async () => {
                 benchmark: kpi.median,
                 description: kpi.name
             })),
-            fixes: analysis.fixes,
-            wins: analysis.wins,
-            timeline: analysis.timeline || [],
+            fixes: analysis.findings.filter(f => f.type === 'fix').map(finding => ({
+                title: finding.header,
+                description: finding.description,
+                dataComparison: `Evidence: ${finding.evidence.map(e => `${e.kpi}: ${e.playerValue.toFixed(1)} vs ${e.benchmarkValue.toFixed(1)} (${(e.delta * 100).toFixed(1)}%)`).join(', ')}`,
+                priority: Math.round((1 - finding.severityWeight) * 3) + 1,
+                category: finding.category,
+                confidence: Math.round(finding.severityWeight * 3)
+            })),
+            wins: analysis.findings.filter(f => f.type === 'win').map(finding => ({
+                title: finding.header,
+                description: finding.description,
+                dataComparison: `Evidence: ${finding.evidence.map(e => `${e.kpi}: ${e.playerValue.toFixed(1)} vs ${e.benchmarkValue.toFixed(1)} (${(e.delta * 100).toFixed(1)}%)`).join(', ')}`,
+                priority: Math.round((1 - finding.severityWeight) * 3) + 1,
+                category: finding.category,
+                confidence: Math.round(finding.severityWeight * 3)
+            })),
+            timeline: [],
             timestamp: Date.now(),
             matchDuration: matchData.durationSeconds,
             radiantWin: matchData.didRadiantWin,
