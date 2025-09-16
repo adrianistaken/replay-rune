@@ -56,6 +56,7 @@ export interface StratzPlayer {
     heroDamage: number
     playerSlot: number
     isRadiant: boolean
+    level: number
     stats: StratzPlayerStats
     heroAverage: StratzHeroAverage[]
     lane: string
@@ -136,6 +137,8 @@ export interface StratzHeroAverage {
     healingAllies: number
     campsStacked: number
     damage: number
+    heroDamage: number
+    towerDamage: number
     supportGold: number
     casts: number
     abilityCasts: number

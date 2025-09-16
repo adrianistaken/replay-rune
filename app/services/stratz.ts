@@ -104,6 +104,7 @@ export class StratzService {
                                 heroDamage
                                 playerSlot
                                 isRadiant
+                                level
                                 stats {
                                     impPerMinute
                                     goldPerMinute
@@ -141,6 +142,8 @@ export class StratzService {
                                     healingAllies
                                     campsStacked
                                     damage
+                                    heroDamage
+                                    towerDamage
                                     supportGold
                                     casts
                                     abilityCasts

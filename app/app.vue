@@ -15,7 +15,7 @@ useHead({
     },
     {
       rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap'
+      href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap'
     }
   ]
 })
@@ -24,25 +24,37 @@ useHead({
 <style>
 /* Force CSS variables to load */
 :root {
-  --primary-color: #cf5a2c !important;
-  --secondary-color: #8a2be2 !important;
-  --accent-color: #cf5a2c !important;
-  --background-color: #1a1a2e !important;
-  --card-background: #2a2a4a !important;
-  --text-primary: #e0e0e0 !important;
-  --text-secondary: #b0b0b0 !important;
-  --border-glow: #0df2f2 !important;
-  --team-radiant: #2ECCB0 !important;
-  --team-dire: #E5534B !important;
-  --accent-success: #2ECCB0 !important;
-  --accent-error: #E5534B !important;
+  --primary-color: #2C3E50 !important;
+  /* Gunmetal - for primary buttons and highlights */
+  --secondary-color: #6C7A89 !important;
+  /* Misty Harbor Dawn - for secondary elements */
+  --accent-color: #F4E7D3 !important;
+  /* Peach Cream Puff - for accent buttons */
+  --background-color: #2C3E50 !important;
+  /* Gunmetal - main background */
+  --card-background: #34495E !important;
+  /* Deep Slate - card backgrounds */
+  --text-primary: #F4E7D3 !important;
+  /* Peach Cream Puff - primary text */
+  --text-secondary: #C5C1BB !important;
+  /* Dusty Elephant Hide - secondary text */
+  --border-glow: #6C7A89 !important;
+  /* Misty Harbor Dawn - for glows */
+  --team-radiant: #F4E7D3 !important;
+  /* Peach Cream Puff - Radiant team */
+  --team-dire: #C5C1BB !important;
+  /* Dusty Elephant Hide - Dire team */
+  --accent-success: #10B981 !important;
+  /* Emerald-500 - success states */
+  --accent-error: #EF4444 !important;
+  /* Red-500 - error states */
 }
 
 /* Override existing styles */
 body {
   background-color: var(--background-color) !important;
   color: var(--text-primary) !important;
-  font-family: 'Space Grotesk', sans-serif !important;
+  font-family: 'Roboto', sans-serif !important;
 }
 
 html {
