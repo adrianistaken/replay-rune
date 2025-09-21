@@ -1,4 +1,4 @@
-import type { ComputedPlayerData, ComputedKPI, Fix, Win, TimelineMarker } from '../types'
+import type { ComputedPlayerData, ComputedKPI, Fix, Win, TimelineMarker, BracketAveragesData, BracketAveragesCache, StratzHeroAverage } from '../types'
 import type { RuleCategory } from '../../constants/ruleCategories'
 
 export interface V3Rule {
@@ -195,6 +195,188 @@ export class StratzRuleEngine {
 
         return result
     }
+
+    /**
+     * Fetches bracket averages data for all bracket groupings in a single query
+     */
+    static async fetchBracketAverages(
+        heroId: number,
+        position: string
+    ): Promise<BracketAveragesCache> {
+        const cacheKey = `bracket-averages-${heroId}-${position}`
+        const cached = localStorage.getItem(cacheKey)
+
+        if (cached) {
+            const parsedCache = JSON.parse(cached) as BracketAveragesCache
+            // Check if cache is still valid (24 hours)
+            const now = Date.now()
+            const isExpired = Object.values(parsedCache).some(data =>
+                now - data.cachedAt > 24 * 60 * 60 * 1000
+            )
+
+            if (!isExpired) {
+                console.log('📁 Using cached bracket averages')
+                return parsedCache
+            }
+        }
+
+        console.log('🔄 Fetching bracket averages for hero', heroId, position)
+
+        try {
+            // Single query for all bracket groupings
+            const query = `
+                query {
+                    heroStats {
+                        stats(heroIds:${heroId} bracketBasicIds:[HERALD_GUARDIAN, CRUSADER_ARCHON, LEGEND_ANCIENT, DIVINE_IMMORTAL, UNCALIBRATED] positionIds:${position} minTime:0 maxTime:100 groupByTime:true groupByBracket:true groupByPosition:true) {
+                            heroId
+                            position
+                            bracketBasicIds
+                            kills
+                            deaths
+                            time
+                            matchCount
+                            mvp
+                            topCore
+                            topSupport
+                            courierKills
+                            apm
+                            goldPerMinute
+                            xp
+                            level
+                            networth
+                            supportGold
+                            assists
+                            damage
+                            heroDamage
+                            towerDamage
+                            abilityCasts
+                            casts
+                            kDAAverage
+                            killContributionAverage
+                            cs
+                            dn
+                            campsStacked
+                            healingSelf
+                            healingAllies
+                            healingItemSelf
+                            healingItemAllies
+                        }
+                    }
+                }
+            `
+
+            const response = await fetch('/api/stratz/graphql', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query })
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const result = await response.json()
+
+            if (result.errors) {
+                throw new Error(`GraphQL errors: ${JSON.stringify(result.errors)}`)
+            }
+
+            const stats = result.data?.heroStats?.stats || []
+            console.log(`📊 Fetched ${stats.length} data points from STRATZ API`)
+
+            // Debug: Show sample data structure
+            if (stats.length > 0) {
+                console.log('🔍 Sample data structure:', {
+                    bracketBasicIds: stats[0].bracketBasicIds,
+                    position: stats[0].position,
+                    time: stats[0].time,
+                    matchCount: stats[0].matchCount
+                })
+            }
+
+            // Group data by bracket grouping
+            const cache: BracketAveragesCache = {}
+            const bracketGroupings = ['HERALD_GUARDIAN', 'CRUSADER_ARCHON', 'LEGEND_ANCIENT', 'DIVINE_IMMORTAL', 'UNCALIBRATED']
+
+            for (const grouping of bracketGroupings) {
+                const groupingData = stats.filter((stat: any) => stat.bracketBasicIds === grouping)
+
+                console.log(`🔍 Grouping ${grouping}: ${groupingData.length} data points`)
+
+                if (groupingData.length > 0) {
+                    const key = `${heroId}-${position}-${grouping}`
+                    cache[key] = {
+                        heroId,
+                        position,
+                        bracketGrouping: grouping,
+                        data: groupingData,
+                        cachedAt: Date.now()
+                    }
+                    console.log(`✅ Cached ${grouping} data with key: ${key}`)
+                } else {
+                    console.log(`⚠️ No data found for ${grouping}`)
+                }
+            }
+
+            if (Object.keys(cache).length === 0) {
+                throw new Error('No bracket averages data found in STRATZ API response')
+            }
+
+            localStorage.setItem(cacheKey, JSON.stringify(cache))
+            console.log(`✅ Loaded ${Object.keys(cache).length} bracket groupings: ${Object.keys(cache).map(key => key.split('-')[2]).join(', ')}`)
+            return cache
+
+        } catch (error) {
+            console.error('❌ Failed to fetch bracket averages:', error)
+            throw error
+        }
+    }
+
+
+    /**
+     * Gets bracket averages data for a specific bracket grouping and time
+     */
+    static getBracketAveragesAtTime(
+        bracketAveragesCache: BracketAveragesCache,
+        heroId: number,
+        position: string,
+        bracketGrouping: string,
+        time: number
+    ): StratzHeroAverage | null {
+        const key = `${heroId}-${position}-${bracketGrouping}`
+        const bracketData = bracketAveragesCache[key]
+
+        if (!bracketData || !bracketData.data) {
+            console.warn(`No bracket data found for ${key}`)
+            return null
+        }
+
+        // Find the closest time within a 5-minute tolerance
+        const tolerance = 5
+        let closestData: StratzHeroAverage | null = null
+        let minTimeDiff = Infinity
+
+        for (const data of bracketData.data) {
+            const timeDiff = Math.abs(data.time - time)
+            if (timeDiff <= tolerance && timeDiff < minTimeDiff) {
+                minTimeDiff = timeDiff
+                closestData = data
+            }
+        }
+
+        if (closestData) {
+            console.log(`Found bracket data for ${bracketGrouping} at ${time} minutes (closest: ${closestData.time})`)
+        } else {
+            console.warn(`No bracket data found for ${bracketGrouping} at ${time} minutes (tolerance: ${tolerance})`)
+        }
+
+        return closestData
+    }
+
+
+
 
     private static getPlayerRole(playerData: ComputedPlayerData): string {
         // Map the role from playerData to the format expected by rules

@@ -469,6 +469,9 @@ const fetchMatchData = async () => {
         // STRATZ data is already parsed, no need for parsing logic
         matchData.value = data
 
+        // Store match data in localStorage for the report page to use
+        localStorage.setItem(`match-data-${matchId.value}`, JSON.stringify(data))
+
         // Load and normalize hero data
         await loadHeroes()
 

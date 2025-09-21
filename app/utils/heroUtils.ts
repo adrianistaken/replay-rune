@@ -107,4 +107,57 @@ export function getHeroImageUrl(heroes: Record<string, NormalizedHero>, heroId: 
 export function getHeroIconUrl(heroes: Record<string, NormalizedHero>, heroId: number): string {
     const hero = getHeroById(heroes, heroId)
     return hero?.icon || FALLBACK_IMAGE
+}
+
+/**
+ * Maps numeric bracket values to bracket grouping strings
+ */
+export function getBracketGrouping(bracket: number): string {
+    const bracketMap: Record<number, string> = {
+        0: 'UNRANKED',
+        1: 'HERALD',
+        2: 'GUARDIAN',
+        3: 'CRUSADER',
+        4: 'ARCHON',
+        5: 'LEGEND',
+        6: 'ANCIENT',
+        7: 'DIVINE',
+        8: 'IMMORTAL'
+    }
+
+    return bracketMap[bracket] || 'UNRANKED'
+}
+
+/**
+ * Maps single bracket to paired bracket grouping for GraphQL queries
+ */
+export function getBracketGroupingForQuery(bracket: number): string {
+    const singleBracket = getBracketGrouping(bracket)
+
+    // Map single brackets to paired groupings
+    const groupingMap: Record<string, string> = {
+        'UNRANKED': 'UNRANKED',
+        'HERALD': 'HERALD_GUARDIAN',
+        'GUARDIAN': 'HERALD_GUARDIAN',
+        'CRUSADER': 'CRUSADER_ARCHON',
+        'ARCHON': 'CRUSADER_ARCHON',
+        'LEGEND': 'LEGEND_ANCIENT',
+        'ANCIENT': 'LEGEND_ANCIENT',
+        'DIVINE': 'DIVINE_IMMORTAL',
+        'IMMORTAL': 'DIVINE_IMMORTAL'
+    }
+
+    return groupingMap[singleBracket] || 'HERALD_GUARDIAN'
+}
+
+/**
+ * Gets all available bracket groupings for the dropdown
+ */
+export function getAvailableBracketGroupings(): Array<{ value: string; label: string }> {
+    return [
+        { value: 'HERALD_GUARDIAN', label: 'Herald & Guardian' },
+        { value: 'CRUSADER_ARCHON', label: 'Crusader & Archon' },
+        { value: 'LEGEND_ANCIENT', label: 'Legend & Ancient' },
+        { value: 'DIVINE_IMMORTAL', label: 'Divine & Immortal' }
+    ]
 } 

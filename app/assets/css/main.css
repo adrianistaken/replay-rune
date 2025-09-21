@@ -30,6 +30,8 @@
     /* Emerald-500 - success states */
     --accent-error: #EF4444;
     /* Red-500 - error states */
+    --accent-warning: #F59E0B;
+    /* Amber-500 - warning states */
 }
 
 /* Base styles - Override with new design system */

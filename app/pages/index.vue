@@ -684,6 +684,9 @@ const startPollingForParsing = async () => {
                 stopPollingForParsing()
                 matchData.value = data
 
+                // Store match data for the report page to use
+                localStorage.setItem(`match-data-${matchId.value}`, JSON.stringify(data))
+
                 // Extract heroes from the updated match data
                 const heroes: Hero[] = []
                 data.players.forEach((player: any) => {
@@ -724,6 +727,9 @@ const startPollingForParsing = async () => {
         if (data.parsedDateTime) {
             stopPollingForParsing()
             matchData.value = data
+
+            // Store match data for the report page to use
+            localStorage.setItem(`match-data-${matchId.value}`, JSON.stringify(data))
 
             // Extract heroes from the updated match data
             const heroes: Hero[] = []
@@ -781,6 +787,9 @@ const fetchMatchData = async () => {
 
         // STRATZ data is already parsed, no need for parsing logic
         matchData.value = data
+
+        // Store match data for the report page to use
+        localStorage.setItem(`match-data-${matchId.value}`, JSON.stringify(data))
 
         // Load and normalize hero data
         await loadHeroes()

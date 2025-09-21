@@ -88,6 +88,11 @@
                     </div>
                 </div>
 
+                <!-- Report Controls -->
+                <ReportControls v-if="report && playerBracket >= 0" :hero-id="report.heroId" :position="report.role"
+                    :match-duration="report.matchDuration" :player-bracket="playerBracket"
+                    :bracket-averages-cache="bracketAveragesCache" @bracketChange="onBracketChange"
+                    @timeChange="onTimeChange" ref="reportControlsRef" />
 
                 <!-- Laning Phase -->
                 <LaningPhase v-if="report.laningPhase" :cs-comparison="report.laningPhase.csComparison"
@@ -96,7 +101,7 @@
                 <!-- Mid Game -->
                 <MidGame v-if="report.midGame" :networth-comparison="report.midGame.networthComparison"
                     :last-hits-comparison="report.midGame.lastHitsComparison" :summary="report.midGame.summary"
-                    :mid-game-minute="report.midGame.midGameMinute" />
+                    :mid-game-minute="Number(report.midGame.midGameMinute)" />
 
                 <!-- Support -->
                 <Support v-if="report.support" :camps-stacked-comparison="report.support.campsStackedComparison"
@@ -134,9 +139,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useHeroes } from '../../../../composables/useHeroes'
+import { getBracketGroupingForQuery } from '../../../../utils/heroUtils'
+import type { BracketAveragesCache } from '../../../../types'
 
 interface AnalysisReport {
     id: string
@@ -203,6 +210,14 @@ const isLoading = ref(true)
 const error = ref('')
 const { loadHeroes, getHero } = useHeroes()
 
+// New reactive data for controls
+const bracketAveragesCache = ref<BracketAveragesCache | null>(null)
+const playerBracket = ref(0)
+const reportControlsRef = ref<any>(null)
+const originalPlayerData = ref<any>(null)
+const selectedBracketGrouping = ref('')
+const selectedTime = ref(0)
+
 onMounted(async () => {
     // Load hero data first so images can be displayed
     await loadHeroes()
@@ -249,14 +264,70 @@ onMounted(async () => {
                 }
             }
             report.value = parsedReport
+
+            // Set player bracket for controls even when loading cached report
+            const storedMatchData = localStorage.getItem(`match-data-${matchId}`)
+            if (storedMatchData) {
+                const matchData = JSON.parse(storedMatchData)
+                playerBracket.value = matchData.bracket || 0
+                console.log('🎯 Set playerBracket from cached match data:', playerBracket.value)
+
+                // Also load bracket averages cache for cached reports
+                try {
+                    const { StratzRuleEngine } = await import('../../../../services/stratzRuleEngine')
+                    const position = role.toUpperCase().replace('POS', 'POSITION_')
+                    const cacheKey = `bracket-averages-${parsedReport.heroId}-${position}`
+
+                    const storedCache = localStorage.getItem(cacheKey)
+                    if (storedCache) {
+                        const parsedCache = JSON.parse(storedCache)
+                        const now = Date.now()
+                        const isCacheValid = Object.values(parsedCache).some((data: any) =>
+                            data.cachedAt && (now - data.cachedAt) < 24 * 60 * 60 * 1000
+                        )
+
+                        if (isCacheValid) {
+                            bracketAveragesCache.value = parsedCache
+                            console.log('📁 Loaded cached bracket averages for cached report')
+                        } else {
+                            // Fetch fresh data if cache is expired
+                            bracketAveragesCache.value = await StratzRuleEngine.fetchBracketAverages(
+                                parsedReport.heroId,
+                                position
+                            )
+                        }
+                    } else {
+                        // Fetch fresh data if no cache
+                        bracketAveragesCache.value = await StratzRuleEngine.fetchBracketAverages(
+                            parsedReport.heroId,
+                            position
+                        )
+                    }
+                } catch (bracketError) {
+                    console.error('❌ Failed to load bracket averages for cached report:', bracketError)
+                }
+            }
+
             isLoading.value = false
             return
         }
 
-        // No cached report, fetching fresh data...
-        // Fetch match data from STRATZ
-        const { StratzService } = await import('../../../../services/stratz')
-        const matchData = await StratzService.fetchMatch(matchId)
+        // Check if match data is already stored from the home page
+        const storedMatchData = localStorage.getItem(`match-data-${matchId}`)
+        let matchData
+
+        if (storedMatchData) {
+            console.log('📁 Using cached match data')
+            matchData = JSON.parse(storedMatchData)
+        } else {
+            console.log('🌐 Fetching match data from STRATZ')
+            // Fetch match data from STRATZ if not stored
+            const { StratzService } = await import('../../../../services/stratz')
+            matchData = await StratzService.fetchMatch(matchId)
+
+            // Store the fetched data for future use
+            localStorage.setItem(`match-data-${matchId}`, JSON.stringify(matchData))
+        }
 
         if (!matchData || !matchData.players) {
             throw new Error('Failed to load match data')
@@ -273,19 +344,16 @@ onMounted(async () => {
         const heroName = heroData?.localized_name || player.hero.displayName
 
         // Compute player data and KPIs
+        const { StratzService } = await import('../../../../services/stratz')
         const playerData = StratzService.computePlayerData(matchData, parseInt(heroId), role)
         const kpis = StratzService.computeKPIs(playerData)
 
         // Run analysis using the MVP benchmark engine
         const { MVPBenchmarkEngine } = await import('../../../../services/mvpBenchmarkEngine')
-        console.log('Running benchmark analysis for player:', player)
-        console.log('Match data:', matchData)
 
         let benchmarkAnalysis
         try {
             benchmarkAnalysis = MVPBenchmarkEngine.analyze(matchData, player.playerSlot)
-            console.log('Benchmark analysis result:', benchmarkAnalysis)
-            console.log('Laning phase data:', benchmarkAnalysis.laningPhase)
         } catch (error) {
             console.error('Error in benchmark analysis:', error)
             throw error
@@ -335,6 +403,51 @@ onMounted(async () => {
 
         // Save to history
         saveToHistory(finalReport)
+
+        // Set player bracket for controls
+        playerBracket.value = matchData.bracket || 0
+
+        // Store original player data for dynamic updates
+        originalPlayerData.value = player
+
+        // Initialize controls with player's bracket
+        selectedBracketGrouping.value = getBracketGroupingForQuery(playerBracket.value)
+        selectedTime.value = Math.floor(matchData.durationSeconds / 60)
+
+        // Fetch bracket averages data after report is loaded
+        try {
+            const { StratzRuleEngine } = await import('../../../../services/stratzRuleEngine')
+            const position = role.toUpperCase().replace('POS', 'POSITION_')
+            const cacheKey = `bracket-averages-${player.hero.id}-${position}`
+
+            // Check localStorage first
+            const storedCache = localStorage.getItem(cacheKey)
+            if (storedCache) {
+                const parsedCache = JSON.parse(storedCache)
+                // Check if cache is still valid (24 hours)
+                const now = Date.now()
+                const isCacheValid = Object.values(parsedCache).some((data: any) =>
+                    data.cachedAt && (now - data.cachedAt) < 24 * 60 * 60 * 1000
+                )
+
+                if (isCacheValid) {
+                    bracketAveragesCache.value = parsedCache
+                } else {
+                    bracketAveragesCache.value = await StratzRuleEngine.fetchBracketAverages(
+                        player.hero.id,
+                        position
+                    )
+                }
+            } else {
+                bracketAveragesCache.value = await StratzRuleEngine.fetchBracketAverages(
+                    player.hero.id,
+                    position
+                )
+            }
+        } catch (bracketError) {
+            console.error('❌ Failed to fetch bracket averages:', bracketError)
+            // Don't fail the entire report if bracket averages fail
+        }
 
         isLoading.value = false
 
@@ -390,6 +503,70 @@ const getRoleDisplayName = (role: string) => {
     }
     return roleMap[role] || role
 }
+
+// Control event handlers
+const onBracketChange = async (bracketGrouping: string) => {
+    console.log(`🔄 Switching to ${bracketGrouping} comparison`)
+    await updateAnalysisData(bracketGrouping, selectedTime.value)
+}
+
+const onTimeChange = async (time: number) => {
+    console.log(`⏰ Analyzing at ${time} minutes`)
+    selectedTime.value = Number(time)
+    await updateAnalysisData(selectedBracketGrouping.value, Number(time))
+}
+
+// Dynamic analysis update function
+const updateAnalysisData = async (bracketGrouping: string, timeMinutes: number) => {
+    if (!report.value || !originalPlayerData.value) {
+        return
+    }
+
+    // If bracketAveragesCache is not available yet, show a loading state
+    if (!bracketAveragesCache.value) {
+        if (reportControlsRef.value) {
+            reportControlsRef.value.setError('Loading bracket data... Please wait.')
+        }
+        return
+    }
+
+    try {
+        const { DynamicAnalysisEngine } = await import('../../../../services/dynamicAnalysisEngine')
+
+        const dynamicAnalysis = DynamicAnalysisEngine.recalculateAnalysis(
+            originalPlayerData.value,
+            report.value.matchDuration,
+            bracketAveragesCache.value,
+            bracketGrouping,
+            timeMinutes
+        )
+
+        // Update the report with new analysis data
+        report.value.benchmarkComparisons = dynamicAnalysis.comparisons
+        report.value.laningPhase = dynamicAnalysis.laningPhase
+        report.value.midGame = dynamicAnalysis.midGame
+        report.value.support = dynamicAnalysis.support
+        report.value.summary = dynamicAnalysis.summary
+
+        // Clear any previous errors
+        if (reportControlsRef.value) {
+            reportControlsRef.value.clearError()
+        }
+
+    } catch (error) {
+        console.error('❌ Failed to update analysis data:', error)
+        if (reportControlsRef.value) {
+            reportControlsRef.value.setError('Failed to update analysis data. Please try again.')
+        }
+    }
+}
+
+// Watch for bracketAveragesCache to become available and update analysis
+watch(bracketAveragesCache, (newCache) => {
+    if (newCache && selectedBracketGrouping.value && selectedTime.value) {
+        updateAnalysisData(selectedBracketGrouping.value, selectedTime.value)
+    }
+}, { immediate: true })
 
 </script>
 

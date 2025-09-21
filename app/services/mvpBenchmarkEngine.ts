@@ -74,20 +74,15 @@ export class MVPBenchmarkEngine {
             deniesComparison: { playerValue: 0, averageValue: 0, difference: 0, percentageDiff: 0 },
             summary: 'Laning phase data not available.'
         }
-        console.log('Calculated laning phase:', laningPhase)
-        console.log('Hero average at 10:', heroAverageAt10)
 
         // Calculate mid game data
         const midGame = this.calculateMidGame(player, matchData.durationSeconds)
-        console.log('Calculated mid game:', midGame)
 
         // Calculate support data
         const support = this.calculateSupport(player)
-        console.log('Calculated support:', support)
 
         // Generate summary
         const summary = this.generateSummary(comparisons, player.hero.displayName)
-        console.log('Generated summary:', summary)
 
         return {
             summary,
@@ -149,11 +144,6 @@ export class MVPBenchmarkEngine {
             return current.time > latest.time ? current : latest
         })
 
-        console.log('Using heroAverage data at time:', finalHeroAverage.time, 'for final stats')
-        console.log('Final kills average:', finalHeroAverage.kills)
-        console.log('Final XP average:', finalHeroAverage.xp, 'at time:', finalHeroAverage.time)
-        console.log('XPM calculation: (', finalHeroAverage.xp, '/', finalHeroAverage.time, ') =', finalHeroAverage.xp / finalHeroAverage.time)
-
         return finalHeroAverage
     }
 
@@ -201,19 +191,14 @@ export class MVPBenchmarkEngine {
         }
 
         // Find the heroAverage entry at time 10 (10th minute)
-        console.log('Available heroAverage times:', player.heroAverage.map(entry => entry.time))
         const heroAverageAt10 = player.heroAverage.find(entry => entry.time === 10)
 
         if (heroAverageAt10) {
-            console.log('Using heroAverage data at time 10 for laning phase')
-            console.log('10-minute data:', heroAverageAt10)
             return heroAverageAt10
         }
 
         // If no 10-minute data found, use the first available entry as fallback
-        console.log('No 10-minute heroAverage data found, using first available entry')
         const fallbackEntry = player.heroAverage[0] || null
-        console.log('Fallback entry:', fallbackEntry)
         return fallbackEntry
     }
 
@@ -353,17 +338,9 @@ export class MVPBenchmarkEngine {
     }
 
     private static calculateLaningPhase(player: StratzPlayer, heroAverage: StratzHeroAverage, matchDurationSeconds?: number): LaningPhaseData {
-        console.log('Calculating laning phase for player:', player.hero.displayName)
-        console.log('Player stats:', player.stats)
-        console.log('Hero average:', heroAverage)
-        console.log('Match duration (seconds):', matchDurationSeconds)
-
         // Calculate CS @ 10 mins
         const playerCsAt10 = this.calculatePlayerCsAt10(player, matchDurationSeconds)
         const averageCsAt10 = this.calculateAverageCsAt10(heroAverage)
-
-        console.log('Player CS @ 10:', playerCsAt10)
-        console.log('Average CS @ 10:', averageCsAt10)
 
         const csComparison: LaningPhaseComparison = {
             playerValue: playerCsAt10,
@@ -375,9 +352,6 @@ export class MVPBenchmarkEngine {
         // Calculate Denies @ 10 mins
         const playerDeniesAt10 = this.calculatePlayerDeniesAt10(player, matchDurationSeconds)
         const averageDeniesAt10 = this.calculateAverageDeniesAt10(heroAverage)
-
-        console.log('Player Denies @ 10:', playerDeniesAt10)
-        console.log('Average Denies @ 10:', averageDeniesAt10)
 
         const deniesComparison: LaningPhaseComparison = {
             playerValue: playerDeniesAt10,
@@ -403,16 +377,9 @@ export class MVPBenchmarkEngine {
         const matchMinutes = matchDurationSeconds / 60
         const midGameMinute = Math.round(10 + (matchMinutes - 10) / 2)
 
-        console.log('Calculating mid game for player:', player.hero.displayName)
-        console.log('Match duration (minutes):', matchMinutes)
-        console.log('Mid game minute:', midGameMinute)
-
         // Calculate Net Worth @ Mid Game
         const playerNetworthAtMidGame = this.calculatePlayerNetworthAtMidGame(player, midGameMinute)
         const averageNetworthAtMidGame = this.calculateAverageNetworthAtMidGame(player, midGameMinute)
-
-        console.log('Player Net Worth @ Mid Game:', playerNetworthAtMidGame)
-        console.log('Average Net Worth @ Mid Game:', averageNetworthAtMidGame)
 
         const networthComparison: LaningPhaseComparison = {
             playerValue: playerNetworthAtMidGame,
@@ -424,9 +391,6 @@ export class MVPBenchmarkEngine {
         // Calculate Last Hits @ Mid Game
         const playerLastHitsAtMidGame = this.calculatePlayerLastHitsAtMidGame(player, midGameMinute, matchDurationSeconds)
         const averageLastHitsAtMidGame = this.calculateAverageLastHitsAtMidGame(player, midGameMinute)
-
-        console.log('Player Last Hits @ Mid Game:', playerLastHitsAtMidGame)
-        console.log('Average Last Hits @ Mid Game:', averageLastHitsAtMidGame)
 
         const lastHitsComparison: LaningPhaseComparison = {
             playerValue: playerLastHitsAtMidGame,
@@ -450,14 +414,8 @@ export class MVPBenchmarkEngine {
     }
 
     private static calculateSupport(player: StratzPlayer): SupportData {
-        console.log('Calculating support for player:', player.hero.displayName)
-
-        // Calculate Camps Stacked
         const playerCampsStacked = this.calculatePlayerCampsStacked(player)
         const averageCampsStacked = this.calculateAverageCampsStacked(player)
-
-        console.log('Player Camps Stacked:', playerCampsStacked)
-        console.log('Average Camps Stacked:', averageCampsStacked)
 
         const campsStackedComparison: LaningPhaseComparison = {
             playerValue: playerCampsStacked,
@@ -495,13 +453,11 @@ export class MVPBenchmarkEngine {
         // This varies by role and hero, but 20% is a reasonable average
         const estimatedCsAt10 = Math.round((totalLastHits / matchMinutes) * 10 * 0.8) // 0.8 factor for more realistic early game CS
 
-        console.log(`CS estimation: total=${totalLastHits}, matchMinutes=${matchMinutes}, estimated@10=${estimatedCsAt10}`)
         return estimatedCsAt10
     }
 
     private static calculateAverageCsAt10(heroAverage: StratzHeroAverage): number {
         // The heroAverage parameter should now be the 10-minute entry
-        console.log('Hero average CS at 10:', heroAverage.cs, 'Time:', heroAverage.time)
         return heroAverage.cs || 0
     }
 
@@ -521,13 +477,11 @@ export class MVPBenchmarkEngine {
         // Denies are typically more concentrated in early game (30-40% in first 10 minutes)
         const estimatedDeniesAt10 = Math.round((totalDenies / matchMinutes) * 10 * 1.2) // 1.2 factor for early game concentration
 
-        console.log(`Denies estimation: total=${totalDenies}, matchMinutes=${matchMinutes}, estimated@10=${estimatedDeniesAt10}`)
         return estimatedDeniesAt10
     }
 
     private static calculateAverageDeniesAt10(heroAverage: StratzHeroAverage): number {
         // The heroAverage parameter should now be the 10-minute entry
-        console.log('Hero average denies at 10:', heroAverage.dn, 'Time:', heroAverage.time)
         return heroAverage.dn || 0
     }
 
@@ -588,7 +542,6 @@ export class MVPBenchmarkEngine {
             return currentDiff < closestDiff ? current : closest
         })
 
-        console.log('Using heroAverage entry at time:', closestEntry.time, 'for mid game networth')
         return closestEntry.networth || 0
     }
 
@@ -608,7 +561,6 @@ export class MVPBenchmarkEngine {
         // More realistic estimation: last hits are more concentrated in early-mid game
         const estimatedLastHitsAtMidGame = Math.round(totalLastHits * midGameProgress * 1.1) // 1.1 factor for early-mid game concentration
 
-        console.log(`Last hits estimation: total=${totalLastHits}, midGameProgress=${midGameProgress}, estimated@${midGameMinute}=${estimatedLastHitsAtMidGame}`)
         return estimatedLastHitsAtMidGame
     }
 
@@ -625,7 +577,6 @@ export class MVPBenchmarkEngine {
             return currentDiff < closestDiff ? current : closest
         })
 
-        console.log('Using heroAverage entry at time:', closestEntry.time, 'for mid game last hits')
         return closestEntry.cs || 0
     }
 

@@ -401,6 +401,20 @@ export interface HeroAverageData {
     data: StratzHeroAverage[]
 }
 
+// Bracket averages data structure
+export interface BracketAveragesData {
+    heroId: number
+    position: string
+    bracketGrouping: string
+    data: StratzHeroAverage[]
+    cachedAt: number
+}
+
+// Bracket averages cache structure
+export interface BracketAveragesCache {
+    [key: string]: BracketAveragesData // key format: `${heroId}-${position}-${bracketGrouping}`
+}
+
 // Position mapping
 export const POSITION_MAP = {
     'POSITION_1': 'Carry',
