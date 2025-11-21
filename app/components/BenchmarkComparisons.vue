@@ -1,38 +1,40 @@
 <template>
-    <div class="rounded-lg p-8"
+    <div class="rounded-lg p-4"
         style="background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%); box-shadow: 0px 0px 50px #000;">
-        <h2 class="text-2xl font-semibold text-[var(--text-primary)] mb-6">Performance vs Average</h2>
-        <div v-if="comparisons && comparisons.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <h2 class="text-xl font-semibold text-[var(--text-primary)] mb-4">Performance vs Average</h2>
+        <div v-if="comparisons && comparisons.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
             <div v-for="comparison in comparisons" :key="comparison.metric"
                 class="bg-[var(--card-background)]/30 rounded-lg overflow-hidden border border-[var(--card-background)]/50 h-fit">
                 <!-- Header -->
                 <div
-                    class="bg-gradient-to-r from-[var(--primary-color)]/20 to-[var(--primary-color)]/10 p-3 border-b border-[var(--card-background)]/50">
+                    class="bg-gradient-to-r from-[var(--primary-color)]/20 to-[var(--primary-color)]/10 p-2 border-b border-[var(--card-background)]/50">
                     <div class="flex justify-between items-center">
-                        <h3 class="font-bold text-[var(--text-primary)] text-lg">{{ comparison.displayName }}</h3>
+                        <h3 class="font-bold text-[var(--text-primary)] text-sm">{{ comparison.displayName }}</h3>
                         <span :class="getPerformanceColor(comparison.percentageDiff, comparison.metric)"
-                            class="text-sm font-bold rounded-full bg-[var(--card-background)]/50">
+                            class="text-xs font-bold rounded-full bg-[var(--card-background)]/50 px-2 py-1">
                             {{ formatPercentage(comparison.percentageDiff, comparison.metric) }}
                         </span>
                     </div>
                 </div>
                 <!-- Data Table -->
-                <div class="px-3 py-0">
-                    <div class="space-y-2">
+                <div class="px-2 py-1">
+                    <div class="space-y-1">
                         <div class="flex justify-between items-center py-1 border-b border-[var(--card-background)]/30">
-                            <span class="text-[var(--text-secondary)] font-medium text-sm">Your Value</span>
-                            <span class="text-[var(--text-primary)] font-bold">{{ formatValue(comparison.playerValue)
-                            }}{{ comparison.unit }}</span>
+                            <span class="text-[var(--text-secondary)] font-medium text-xs">Your Value</span>
+                            <span class="text-[var(--text-primary)] font-bold text-sm">{{
+                                formatValue(comparison.playerValue)
+                                }}{{ comparison.unit }}</span>
                         </div>
                         <div class="flex justify-between items-center py-1 border-b border-[var(--card-background)]/30">
-                            <span class="text-[var(--text-secondary)] font-medium text-sm">Average</span>
-                            <span class="text-[var(--text-primary)] font-bold">{{ formatValue(comparison.averageValue)
-                            }}{{ comparison.unit }}</span>
+                            <span class="text-[var(--text-secondary)] font-medium text-xs">Average</span>
+                            <span class="text-[var(--text-primary)] font-bold text-sm">{{
+                                formatValue(comparison.averageValue)
+                                }}{{ comparison.unit }}</span>
                         </div>
                         <div class="flex justify-between items-center py-1">
-                            <span class="text-[var(--text-secondary)] font-medium text-sm">Difference</span>
+                            <span class="text-[var(--text-secondary)] font-medium text-xs">Difference</span>
                             <span :class="getPerformanceColor(comparison.percentageDiff, comparison.metric)"
-                                class="font-bold">
+                                class="font-bold text-sm">
                                 {{ formatDifference(comparison.difference, comparison.metric) }}{{ comparison.unit }}
                             </span>
                         </div>

@@ -1,48 +1,48 @@
 <template>
-    <div class="rounded-lg p-8 mb-8"
+    <div class="rounded-lg p-4 mb-4"
         style="background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%); box-shadow: 0px 0px 50px #000;">
-        <h2 class="text-2xl font-semibold text-[var(--text-primary)] mb-6">Mid Game</h2>
+        <h2 class="text-xl font-semibold text-[var(--text-primary)] mb-4">Mid Game</h2>
 
         <!-- Summary -->
-        <div class="mb-6 p-4 bg-[var(--card-background)]/20 rounded-lg">
-            <p class="text-[var(--text-primary)] text-lg leading-relaxed">{{ summary }}</p>
+        <div class="mb-4 p-3 bg-[var(--card-background)]/20 rounded-lg">
+            <p class="text-[var(--text-primary)] text-base leading-relaxed">{{ summary }}</p>
         </div>
 
         <!-- Metrics Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <!-- Net Worth @ Mid Game -->
             <div
                 class="bg-[var(--card-background)]/30 rounded-lg overflow-hidden border border-[var(--card-background)]/50 h-fit">
                 <!-- Header -->
                 <div
-                    class="bg-gradient-to-r from-[var(--primary-color)]/20 to-[var(--primary-color)]/10 p-3 border-b border-[var(--card-background)]/50">
+                    class="bg-gradient-to-r from-[var(--primary-color)]/20 to-[var(--primary-color)]/10 p-2 border-b border-[var(--card-background)]/50">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-xl font-bold text-[var(--text-primary)]">Net Worth @ {{ midGameMinute }} mins
+                        <h3 class="text-lg font-bold text-[var(--text-primary)]">Net Worth @ {{ midGameMinute }} mins
                         </h3>
                         <span :class="getPerformanceColor(networthComparison.percentageDiff)"
-                            class="text-lg font-bold rounded-full bg-[var(--card-background)]/50">
+                            class="text-sm font-bold rounded-full bg-[var(--card-background)]/50 px-2 py-1">
                             {{ formatPercentage(networthComparison.percentageDiff) }}
                         </span>
                     </div>
                 </div>
                 <!-- Data Table -->
-                <div class="px-3 py-0">
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-center py-2 border-b border-[var(--card-background)]/30">
-                            <span class="text-[var(--text-secondary)] font-medium">Your Net Worth</span>
-                            <span class="text-[var(--text-primary)] font-bold text-lg">{{
+                <div class="px-2 py-1">
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center py-1 border-b border-[var(--card-background)]/30">
+                            <span class="text-[var(--text-secondary)] font-medium text-sm">Your Net Worth</span>
+                            <span class="text-[var(--text-primary)] font-bold">{{
                                 formatValue(networthComparison.playerValue) }}</span>
                         </div>
-                        <div class="flex justify-between items-center py-2 border-b border-[var(--card-background)]/30">
-                            <span class="text-[var(--text-secondary)] font-medium">Average Net Worth</span>
-                            <span class="text-[var(--text-primary)] font-bold text-lg">{{
+                        <div class="flex justify-between items-center py-1 border-b border-[var(--card-background)]/30">
+                            <span class="text-[var(--text-secondary)] font-medium text-sm">Average Net Worth</span>
+                            <span class="text-[var(--text-primary)] font-bold">{{
                                 formatValue(networthComparison.averageValue) }}</span>
                         </div>
-                        <div class="flex justify-between items-center py-2">
-                            <span class="text-[var(--text-secondary)] font-medium">Difference</span>
+                        <div class="flex justify-between items-center py-1">
+                            <span class="text-[var(--text-secondary)] font-medium text-sm">Difference</span>
                             <span
                                 :class="networthComparison.difference >= 0 ? 'text-[var(--accent-success)]' : 'text-[var(--accent-error)]'"
-                                class="font-bold text-lg">
+                                class="font-bold">
                                 {{ formatDifference(networthComparison.difference) }}
                             </span>
                         </div>
@@ -55,34 +55,34 @@
                 class="bg-[var(--card-background)]/30 rounded-lg overflow-hidden border border-[var(--card-background)]/50 h-fit">
                 <!-- Header -->
                 <div
-                    class="bg-gradient-to-r from-[var(--primary-color)]/20 to-[var(--primary-color)]/10 p-3 border-b border-[var(--card-background)]/50">
+                    class="bg-gradient-to-r from-[var(--primary-color)]/20 to-[var(--primary-color)]/10 p-2 border-b border-[var(--card-background)]/50">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-xl font-bold text-[var(--text-primary)]">Last Hits @ {{ midGameMinute }} mins
+                        <h3 class="text-lg font-bold text-[var(--text-primary)]">Last Hits @ {{ midGameMinute }} mins
                         </h3>
                         <span :class="getPerformanceColor(lastHitsComparison.percentageDiff)"
-                            class="text-lg font-bold rounded-full bg-[var(--card-background)]/50">
+                            class="text-sm font-bold rounded-full bg-[var(--card-background)]/50 px-2 py-1">
                             {{ formatPercentage(lastHitsComparison.percentageDiff) }}
                         </span>
                     </div>
                 </div>
                 <!-- Data Table -->
-                <div class="px-3 py-0">
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-center py-2 border-b border-[var(--card-background)]/30">
-                            <span class="text-[var(--text-secondary)] font-medium">Your Last Hits</span>
-                            <span class="text-[var(--text-primary)] font-bold text-lg">{{
+                <div class="px-2 py-1">
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center py-1 border-b border-[var(--card-background)]/30">
+                            <span class="text-[var(--text-secondary)] font-medium text-sm">Your Last Hits</span>
+                            <span class="text-[var(--text-primary)] font-bold">{{
                                 lastHitsComparison.playerValue.toFixed(1) }}</span>
                         </div>
-                        <div class="flex justify-between items-center py-2 border-b border-[var(--card-background)]/30">
-                            <span class="text-[var(--text-secondary)] font-medium">Average Last Hits</span>
-                            <span class="text-[var(--text-primary)] font-bold text-lg">{{
+                        <div class="flex justify-between items-center py-1 border-b border-[var(--card-background)]/30">
+                            <span class="text-[var(--text-secondary)] font-medium text-sm">Average Last Hits</span>
+                            <span class="text-[var(--text-primary)] font-bold">{{
                                 lastHitsComparison.averageValue.toFixed(1) }}</span>
                         </div>
-                        <div class="flex justify-between items-center py-2">
-                            <span class="text-[var(--text-secondary)] font-medium">Difference</span>
+                        <div class="flex justify-between items-center py-1">
+                            <span class="text-[var(--text-secondary)] font-medium text-sm">Difference</span>
                             <span
                                 :class="lastHitsComparison.difference >= 0 ? 'text-[var(--accent-success)]' : 'text-[var(--accent-error)]'"
-                                class="font-bold text-lg">
+                                class="font-bold">
                                 {{ formatDifference(lastHitsComparison.difference) }}
                             </span>
                         </div>

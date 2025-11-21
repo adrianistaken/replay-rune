@@ -6,7 +6,7 @@
         <AppNavigation />
 
         <!-- Main Content -->
-        <main class="container mx-auto px-4 py-8 lg:px-8 relative z-10">
+        <main class="w-full px-2 py-4 relative z-10">
             <!-- Dark overlay for readability -->
             <div class="fixed inset-0 bg-black/30 -z-10"></div>
 
@@ -37,17 +37,17 @@
             </div>
 
             <!-- Report Content -->
-            <div v-else-if="report" class="max-w-4xl mx-auto">
+            <div v-else-if="report" class="w-full">
                 <!-- Header Card -->
-                <div class="rounded-lg p-8 mb-8"
+                <div class="rounded-lg p-4 mb-4"
                     style="background: linear-gradient(300deg, rgba(0, 0, 0, 0.38) 3.07%, rgba(6, 37, 65, 0.3) 88.06%); box-shadow: 0px 0px 50px #000;">
                     <div class="flex justify-between items-start">
                         <div>
-                            <div class="flex items-center space-x-4 mb-4">
-                                <HeroImage v-if="report.heroId" :hero-id="report.heroId" :width="80" :height="80"
+                            <div class="flex items-center space-x-3 mb-3">
+                                <HeroImage v-if="report.heroId" :hero-id="report.heroId" :width="60" :height="60"
                                     class="rounded-lg" :alt="report.heroName" />
                                 <div>
-                                    <h1 class="text-2xl lg:text-3xl font-bold text-[var(--text-primary)] mb-2">
+                                    <h1 class="text-xl lg:text-2xl font-bold text-[var(--text-primary)] mb-1">
                                         {{ report.heroName }} ({{ getRoleDisplayName(report.role) }})
                                     </h1>
                                     <div class="flex items-center text-sm text-[var(--text-secondary)]">
@@ -62,7 +62,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="text-lg text-[var(--text-primary)] leading-relaxed">{{ report.summary }}</p>
+                            <p class="text-base text-[var(--text-primary)] leading-relaxed">{{ report.summary }}</p>
                         </div>
                         <div class="flex space-x-3">
                             <button @click="copyShareLink"
